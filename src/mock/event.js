@@ -1,4 +1,4 @@
-import {EVENT_TYPES, EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION} from '../const.js';
+import {EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
 import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils.js';
 //import dayjs from 'dayjs';
 
@@ -65,148 +65,32 @@ const mockDestinations = [
   },
 ];
 
-// сделать массив доп. предложений генерируемым?
-const mockOffers = [
-  {
-    type: 'taxi',
-    offers: [
-      {
-        id: 'o1',
-        title: 'Order Uber',
-        price: 20,
-      },
-      {
-        id: 'o2',
-        title: 'Carry luggage',
-        price: 25,
-      }
-    ]
-  },
-  {
-    type: 'bus',
-    offers: [
-      {
-        id: 'o3',
-        title: 'Add luggage',
-        price: 15,
-      },
-    ]
-  },
-  {
-    type: 'train',
-    offers: [
-      {
-        id: 'o4',
-        title: 'Add luggage',
-        price: 20,
-      },
-      {
-        id: 'o5',
-        title: 'Separate compartment',
-        price: 100,
-      },
-      {
-        id: 'o6',
-        title: 'Add breakfast',
-        price: 50,
-      },
-    ]
-  },
-  {
-    type: 'ship',
-    offers: [
-      {
-        id: 'o7',
-        title: 'Add luggage',
-        price: 20,
-      },
-      {
-        id: 'o8',
-        title: 'Stateroom',
-        price: 100,
-      },
-      {
-        id: 'o9',
-        title: 'Add breakfast',
-        price: 50,
-      },
-    ]
-  },
-  {
-    type: 'drive',
-    offers: [
-      {
-        id: 'o10',
-        title: 'Rent a car',
-        price: 200,
-      },
-    ]
-  },
-  {
-    type: 'flight',
-    offers: [
-      {
-        id: 'o11',
-        title: 'Add luggage',
-        price: 30,
-      },
-      {
-        id: 'o12',
-        title: 'Switch to comfort class',
-        price: 100,
-      },
-      {
-        id: 'o13',
-        title: 'Add meal',
-        price: 15,
-      },
-      {
-        id: 'o14',
-        title: 'Choose seats',
-        price: 5,
-      },
-    ]
-  },
-  {
-    type: 'check-in',
-    offers: [
-      {
-        id: 'o15',
-        title: 'Add breakfast',
-        price: 50,
-      },
-    ]
-  },
-  {
-    type: 'sightseeing',
-    offers: [
-      {
-        id: 'o16',
-        title: 'Book tickets',
-        price: 20,
-      },
-      {
-        id: 'o17',
-        title: 'Add lunch',
-        price: 50,
-      },
-    ]
-  },
-  {
-    type: 'restaurant',
-    offers: [
-      {
-        id: 'o18',
-        title: 'Add wine',
-        price: 50,
-      },
-    ]
-  },
-];
+// заполнение массива mockOffers
+const mockOffers = [];
+let offerIdNumber = 1;
+EVENT_TYPES.forEach((eventType) => {
+  const offersCount = getRandomInteger(MIN_OFFERS_COUNT, MAX_OFFERS_COUNT);
+  const offers = [];
+  const offersTitles = OFFERS_TITLES.slice();
+  for (let i = 0; i < offersCount; i++) {
+    const offersTitlesElementNum = getRandomInteger(0, offersTitles.length() - 1);
+    offers.push({
+      id: `o${offerIdNumber}`,
+      title: offersTitles[offersTitlesElementNum],
+      price: getRandomInteger(MIN_OFFER_PRICE, MAX_OFFER_PRICE),
+    });
+    offerIdNumber++;
+    offersTitles.splice(offersTitlesElementNum, 1); //удаляем из массива использованный (присвоенный) элемент для исключения повторения
+  }
+  mockOffers.push({
+    type: eventType,
+    offers: offers,
+  });
+});
 
 //заполнение массива mockEvents
 const mockEvents = [];
-for (let i = 0; i < EVENTS_COUNT; i++) {
+for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
   const eventType = getRandomArrayElement(EVENT_TYPES);
   const eventOffers = getEventOffers(eventType); //в зависимости от type
   const dateFrom = getRandomDate(START_DATE, END_DATE, START_HOUR, END_HOUR);
