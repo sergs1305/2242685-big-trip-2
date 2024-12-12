@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -16,4 +18,12 @@ function getRandomDate(start, end, startHour, endHour) {
   return date;
 }
 
-export {getRandomArrayElement, getRandomInteger, getRandomDate};
+function formatDate(date, dateFormat) {
+  return dayjs(date).format(dateFormat);
+}
+
+function capitalizeFirstLetter(str) {
+  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+}
+
+export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter};

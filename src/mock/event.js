@@ -1,6 +1,5 @@
 import {EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
 import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils.js';
-//import dayjs from 'dayjs';
 
 const mockDestinations = [
   {
@@ -120,4 +119,5 @@ function getEventOffers(type) {
 function getRandomEvent() {
   return getRandomArrayElement(mockEvents);
 }
-export {getRandomEvent};
+
+export {getRandomEvent, mockDestinations};

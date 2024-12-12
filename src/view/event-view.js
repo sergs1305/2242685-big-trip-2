@@ -1,24 +1,34 @@
 import {createElement} from '../render.js';
+import {EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT, EVENT_VIEW_DURATION_TIME_FORMAT} from '../const.js';
+import {formatDate, capitalizeFirstLetter} from '../utils.js';
+import {mockDestinations} from '../mock/event.js';
 
-function createEventTemplate() {
+function createEventTemplate(event) {
+  const {id, basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = event;
+  const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase;
+  const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
+  const timeTo = formatDate(dateTo, EVENT_VIEW_TIME_FORMAT);
+  const eventDuration = formatDate(new Date(dateTo - dateFrom), EVENT_VIEW_DURATION_TIME_FORMAT);
+  const destinationName = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)].name;
+
   return (
     `<li class="trip-events__item">
         <div class="event">
-          <time class="event__date" datetime="2019-03-18">MAR 18</time>
+          <time class="event__date" datetime=${dateFrom}>${dayFrom}</time>
           <div class="event__type">
-            <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+            <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">Taxi Amsterdam</h3>
+          <h3 class="event__title">${capitalizeFirstLetter(type)} ${destinationName}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+              <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
               &mdash;
-              <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+              <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
             </p>
-            <p class="event__duration">30M</p>
+            <p class="event__duration">${eventDuration}</p>
           </div>
           <p class="event__price">
-            &euro;&nbsp;<span class="event__price-value">20</span>
+            &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
           </p>
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
@@ -43,8 +53,12 @@ function createEventTemplate() {
 }
 
 export default class EventView {
+  constructor({event}) {
+    this.event = event;
+  }
+
   getTemplate() {
-    return createEventTemplate();
+    return createEventTemplate(this.event);
   }
 
   getElement() {
