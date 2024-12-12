@@ -17,9 +17,9 @@ export default class mainPresenter {
     render(new ListView(), this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
     const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
-    render(new EditFormView(), tripEventsList);
+    render(new EditFormView(this.boardEvents[0]), tripEventsList);
 
-    for (let i = 0; i < this.boardEvents.length; i++) {
+    for (let i = 1; i < this.boardEvents.length; i++) {
       render(new EventView({event: this.boardEvents[i]}), tripEventsList);
     }
   }

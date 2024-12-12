@@ -26,4 +26,8 @@ function capitalizeFirstLetter(str) {
   return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
 
-export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter};
+function lastWord(str) {
+  return str.trimRight.split(' ').pop().toLowerCase();
+}
+
+export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter, lastWord};

@@ -4,11 +4,11 @@ import {formatDate, capitalizeFirstLetter} from '../utils.js';
 import {mockDestinations} from '../mock/event.js';
 
 function createEventTemplate(event) {
-  const {id, basePrice, dateFrom, dateTo, destination, isFavorite, offers, type} = event;
-  const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase;
-  const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
-  const timeTo = formatDate(dateTo, EVENT_VIEW_TIME_FORMAT);
-  const eventDuration = formatDate(new Date(dateTo - dateFrom), EVENT_VIEW_DURATION_TIME_FORMAT);
+  const {basePrice, dateFrom, dateTo, destination, type} = event; //id, isFavorite, offers,
+  const dayFrom = formatDate(new Date(dateFrom), EVENT_VIEW_DAY_FORMAT).toUpperCase;
+  const timeFrom = formatDate(new Date(dateFrom), EVENT_VIEW_TIME_FORMAT);
+  const timeTo = formatDate(new Date(dateTo), EVENT_VIEW_TIME_FORMAT);
+  const eventDuration = formatDate(new Date(new Date(dateTo) - new Date(dateFrom)), EVENT_VIEW_DURATION_TIME_FORMAT);
   const destinationName = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)].name;
 
   return (
@@ -21,9 +21,9 @@ function createEventTemplate(event) {
           <h3 class="event__title">${capitalizeFirstLetter(type)} ${destinationName}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
+              <time class="event__start-time" datetime=${dateFrom}>${timeFrom}</time>
               &mdash;
-              <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
+              <time class="event__end-time" datetime=${dateTo}>${timeTo}</time>
             </p>
             <p class="event__duration">${eventDuration}</p>
           </div>
