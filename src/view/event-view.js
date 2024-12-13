@@ -1,7 +1,9 @@
 import {createElement} from '../render.js';
-import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT, EVENT_VIEW_DURATION_TIME_FORMAT} from '../const.js';
+import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils.js';
 import {mockDestinations, mockOffers} from '../mock/event.js';
+import dayjs from 'dayjs';
+
 
 function getOfferTitleById (type, offerId) {
   const offersByType = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
@@ -21,10 +23,9 @@ function createEventTemplate(event) {
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
   const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
   const timeTo = formatDate(dateTo, EVENT_VIEW_TIME_FORMAT);
-  const eventDuration = formatDate(new Date(new Date(dateTo) - new Date(dateFrom)), EVENT_VIEW_DURATION_TIME_FORMAT);
-  console.log('dateTo:', dateTo, 'new Date(dateTo):', new Date(dateTo));
-  console.log('dateFrom:', dateFrom, 'new Date(dateFrom):', new Date(dateFrom));
-  console.log('new Date(dateTo) - new Date(dateFrom):', new Date(dateTo) - new Date(dateFrom), 'new Date(new Date(dateTo) - new Date(dateFrom)):', new Date(new Date(dateTo) - new Date(dateFrom)));
+  const durationHours = dayjs(dateTo).diff(dateFrom, 'h');
+  const durationMinuts = Math.round(dayjs(dateTo).diff(dateFrom, 'm', true) % 60);
+  const eventDuration = `${durationHours}H ${durationMinuts}M`;
   const destinationName = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)].name;
   let selectedOffersHtml = '';
   //итерация по массиву выбранных предложений (offers)

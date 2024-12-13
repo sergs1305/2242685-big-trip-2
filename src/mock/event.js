@@ -1,10 +1,11 @@
-import {DATA_DATE_FORMAT, EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
-import {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate} from '../utils.js';
+import {EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
+import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils.js';
+import dayjs from 'dayjs';
 
 const mockDestinations = [
   {
     id: 'd1',
-    description: 'Sydney is the capital city of the state of New South Wales and the most populous city in Australia. Located on Australia\'s east coast, the metropolis surrounds Sydney Harbour and extends about 80 km (50 mi) from the Pacific Ocean in the east to the Blue Mountains in the west, and about 80 km (50 mi) from the Ku-ring-gai Chase National Park and the Hawkesbury River in the north and north-west, to the Royal National Park and Macarthur in the south and south-west. Greater Sydney consists of 658 suburbs, spread across 33 local government areas. Residents of the city are colloquially known as "Sydneysiders". The estimated population in June 2023 was 5,450,496, which is about 66% of the state\'s population. The city\'s nicknames include the Emerald City and the Harbour City.',
+    description: 'Sydney is the capital city of the state of New South Wales and the most populous city in Australia.',
     name: 'Sydney',
     pictures: [
       {
@@ -19,7 +20,7 @@ const mockDestinations = [
   },
   {
     id: 'd2',
-    description: 'Melbourne is the capital and most populous city of the Australian state of Victoria, and the second-most populous city in Australia, after Sydney. Its name generally refers to a 9,993 km<sup>2</sup> (3,858 sq mi) metropolitan area also known as Greater Melbourne, comprising an urban agglomeration of 31 local government areas. The name is also used to specifically refer to the local government area named City of Melbourne, whose area is centred on the Melbourne central business district and some immediate surrounds.',
+    description: 'Melbourne is the capital and most populous city of the Australian state of Victoria, and the second-most populous city in Australia, after Sydney.',
     name: 'Melbourne',
     pictures: [
       {
@@ -34,7 +35,7 @@ const mockDestinations = [
   },
   {
     id: 'd3',
-    description: 'Brisbane is the capital and largest city of the state of Queensland and the third-most populous city in Australia and Oceania, with a population over 2.7 million. Brisbane lies at the centre of South East Queensland, an urban agglomeration with a population of approximately 4 million which includes several other regional centres and cities. The central business district is situated within a peninsula of the Brisbane River about 15 km (9 mi) from its mouth at Moreton Bay. Brisbane is located in the hilly floodplain of the Brisbane River Valley between Moreton Island and the Taylor and D\'Aguilar mountain ranges. It sprawls across several local government areas, most centrally the City of Brisbane. The demonym of Brisbane is Brisbanite.',
+    description: 'Brisbane is the capital and largest city of the state of Queensland and the third-most populous city in Australia and Oceania, with a population over 2.7 million.',
     name: 'Brisbane',
     pictures: [
       {
@@ -49,7 +50,7 @@ const mockDestinations = [
   },
   {
     id: 'd4',
-    description: 'Perth is the capital city of Western Australia. It is the fourth most populous city in Australia, with a population of over 2.3 million within Greater Perth as of 2023. It is part of the South West Land Division of Western Australia, with most of Perth\'s metropolitan area on the Swan Coastal Plain between the Indian Ocean and the Darling Scarp. The city has expanded outward from the original British settlements on the Swan River, upon which its central business district and port of Fremantle are situated.',
+    description: 'Perth is the capital city of Western Australia.',
     name: 'Perth',
     pictures: [
       {
@@ -86,7 +87,6 @@ EVENT_TYPES.forEach((eventType) => {
     offers: offers,
   });
 });
-//console.log(mockOffers);
 //заполнение массива mockEvents
 const mockEvents = [];
 for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
@@ -94,8 +94,9 @@ for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
   const eventOffers = getEventOffers(eventType); //в зависимости от type
   //формат даты: "2019-07-10T22:55:56.845Z" 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
   const dateFrom = getRandomDate(START_DATE, END_DATE, START_HOUR, END_HOUR);
-  const dateFromStr = formatDate(dateFrom, DATA_DATE_FORMAT);
-  const dateToStr = formatDate(dateFrom.getTime() + getRandomInteger(MIN_DURATION, MAX_DURATION), DATA_DATE_FORMAT); //д.б. позднее dateFrom
+  const dateFromStr = dayjs(dateFrom).toISOString();
+  const dateTo = dateFrom.getTime() + getRandomInteger(MIN_DURATION, MAX_DURATION); //в миллисекундах; д.б. позднее dateFrom
+  const dateToStr = dayjs(dateTo).toISOString();
   mockEvents[i] = {
     id: `e${i}`,
     basePrice: getRandomInteger(MIN_BASE_PRICE, MAX_BASE_PRICE),
