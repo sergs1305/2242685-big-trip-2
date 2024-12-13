@@ -1,20 +1,47 @@
 import {createElement} from '../render.js';
-import {EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT, EVENT_VIEW_DURATION_TIME_FORMAT} from '../const.js';
+import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT, EVENT_VIEW_DURATION_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils.js';
-import {mockDestinations} from '../mock/event.js';
+import {mockDestinations, mockOffers} from '../mock/event.js';
+
+function getOfferTitleById (type, offerId) {
+  const offersByType = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
+  const offerIndex = offersByType.findIndex((item) => item.id === offerId);
+  return offerIndex > -1 ? offersByType[offerIndex].title : '';
+}
+
+function getOfferPriceById(type, offerId) {
+  const offersByType = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
+  const offerIndex = offersByType.findIndex((item) => item.id === offerId);
+  return offerIndex > -1 ? offersByType[offerIndex].price : '';
+}
 
 function createEventTemplate(event) {
-  const {basePrice, dateFrom, dateTo, destination, type} = event; //id, isFavorite, offers,
-  const dayFrom = formatDate(new Date(dateFrom), EVENT_VIEW_DAY_FORMAT).toUpperCase;
-  const timeFrom = formatDate(new Date(dateFrom), EVENT_VIEW_TIME_FORMAT);
-  const timeTo = formatDate(new Date(dateTo), EVENT_VIEW_TIME_FORMAT);
+  const {basePrice, dateFrom, dateTo, destination, type, offers} = event; //id, isFavorite,
+  const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
+  const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
+  const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
+  const timeTo = formatDate(dateTo, EVENT_VIEW_TIME_FORMAT);
   const eventDuration = formatDate(new Date(new Date(dateTo) - new Date(dateFrom)), EVENT_VIEW_DURATION_TIME_FORMAT);
+  console.log('dateTo:', dateTo, 'new Date(dateTo):', new Date(dateTo));
+  console.log('dateFrom:', dateFrom, 'new Date(dateFrom):', new Date(dateFrom));
+  console.log('new Date(dateTo) - new Date(dateFrom):', new Date(dateTo) - new Date(dateFrom), 'new Date(new Date(dateTo) - new Date(dateFrom)):', new Date(new Date(dateTo) - new Date(dateFrom)));
   const destinationName = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)].name;
+  let selectedOffersHtml = '';
+  //итерация по массиву выбранных предложений (offers)
+  offers.forEach((offerId) => {
+    selectedOffersHtml += `
+    <li class="event__offer">
+      <span class="event__offer-title">${getOfferTitleById(type, offerId)}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${getOfferPriceById(type, offerId)}</span>
+    </li>
+    `;
+  });
 
   return (
     `<li class="trip-events__item">
         <div class="event">
-          <time class="event__date" datetime=${dateFrom}>${dayFrom}</time>
+          <time class="event__date" datetime="${eventDate}">${dayFrom}</time>
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
           </div>
@@ -32,11 +59,9 @@ function createEventTemplate(event) {
           </p>
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
-            <li class="event__offer">
-              <span class="event__offer-title">Order Uber</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">20</span>
-            </li>
+
+            ${selectedOffersHtml}
+
           </ul>
           <button class="event__favorite-btn event__favorite-btn--active" type="button">
             <span class="visually-hidden">Add to favorite</span>

@@ -1,5 +1,5 @@
-import {EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
-import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils.js';
+import {DATA_DATE_FORMAT, EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from '../const.js';
+import {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate} from '../utils.js';
 
 const mockDestinations = [
   {
@@ -19,7 +19,7 @@ const mockDestinations = [
   },
   {
     id: 'd2',
-    description: 'Melbourne is the capital and most populous city of the Australian state of Victoria, and the second-most populous city in Australia, after Sydney. Its name generally refers to a 9,993 km2 (3,858 sq mi) metropolitan area also known as Greater Melbourne, comprising an urban agglomeration of 31 local government areas. The name is also used to specifically refer to the local government area named City of Melbourne, whose area is centred on the Melbourne central business district and some immediate surrounds.',
+    description: 'Melbourne is the capital and most populous city of the Australian state of Victoria, and the second-most populous city in Australia, after Sydney. Its name generally refers to a 9,993 km<sup>2</sup> (3,858 sq mi) metropolitan area also known as Greater Melbourne, comprising an urban agglomeration of 31 local government areas. The name is also used to specifically refer to the local government area named City of Melbourne, whose area is centred on the Melbourne central business district and some immediate surrounds.',
     name: 'Melbourne',
     pictures: [
       {
@@ -72,7 +72,7 @@ EVENT_TYPES.forEach((eventType) => {
   const offers = [];
   const offersTitles = OFFERS_TITLES.slice();
   for (let i = 0; i < offersCount; i++) {
-    const offersTitlesElementNum = getRandomInteger(0, offersTitles.length() - 1);
+    const offersTitlesElementNum = getRandomInteger(0, offersTitles.length - 1);
     offers.push({
       id: `o${offerIdNumber}`,
       title: offersTitles[offersTitlesElementNum],
@@ -86,19 +86,21 @@ EVENT_TYPES.forEach((eventType) => {
     offers: offers,
   });
 });
-
+//console.log(mockOffers);
 //заполнение массива mockEvents
 const mockEvents = [];
 for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
   const eventType = getRandomArrayElement(EVENT_TYPES);
   const eventOffers = getEventOffers(eventType); //в зависимости от type
+  //формат даты: "2019-07-10T22:55:56.845Z" 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
   const dateFrom = getRandomDate(START_DATE, END_DATE, START_HOUR, END_HOUR);
-  const dateTo = Date(dateFrom.getTime() + getRandomInteger(MIN_DURATION, MAX_DURATION)); //д.б. позднее dateFrom
+  const dateFromStr = formatDate(dateFrom, DATA_DATE_FORMAT);
+  const dateToStr = formatDate(dateFrom.getTime() + getRandomInteger(MIN_DURATION, MAX_DURATION), DATA_DATE_FORMAT); //д.б. позднее dateFrom
   mockEvents[i] = {
     id: `e${i}`,
     basePrice: getRandomInteger(MIN_BASE_PRICE, MAX_BASE_PRICE),
-    dateFrom: dateFrom.toString(),
-    dateTo: dateTo.toString(),
+    dateFrom: dateFromStr,
+    dateTo: dateToStr,
     destination: getRandomArrayElement(mockDestinations).id,
     isFavorite: false,
     offers: eventOffers,
@@ -107,12 +109,19 @@ for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
 }
 
 function getEventOffers(type) {
-//возвращает массив offersIds для конкретного type
-  const offers = mockOffers[mockOffers.findIndex((item) => item.type === type)]; //ищет элемент (объект) в массиве mockOffers по ключу type
+//возвращает массив (случайный набор предложений) offersIds для конкретного type
+  const offers = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //ищет элемент (объект) в массиве mockOffers по ключу type
   const offersIds = [];
-  offers.forEach((offer) => {
-    offersIds.push(offer.id);
-  });
+  for (let i = 0; i < offers.length; i++) {
+    if (getRandomInteger(0, 1) === 1) { //добавить?
+      offersIds.push(offers[i].id);
+    }
+  }
+  // offers.forEach((offer) => {
+  //   if (getRandomInteger(0, 1)) { //добавить или нет
+  //     offersIds.push(offer.id);
+  //   }
+  // });
   return offersIds;
 }
 
@@ -120,4 +129,4 @@ function getRandomEvent() {
   return getRandomArrayElement(mockEvents);
 }
 
-export {getRandomEvent, mockDestinations};
+export {getRandomEvent, mockDestinations, mockOffers};

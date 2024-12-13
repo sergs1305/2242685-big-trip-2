@@ -27,7 +27,7 @@ function capitalizeFirstLetter(str) {
 }
 
 function lastWord(str) {
-  return str.trimRight.split(' ').pop().toLowerCase();
+  return str.trimRight().split(' ').pop().toLowerCase();
 }
 
 export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter, lastWord};
