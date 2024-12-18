@@ -1,24 +1,18 @@
 import {createElement} from '../render.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils.js';
-import {mockDestinations, mockOffers} from '../mock/event.js';
+import {destinations} from '../mock/destinations.js';
+import {allOffers} from '../mock/offers.js';
 import dayjs from 'dayjs';
 
-
-function getOfferTitleById (type, offerId) {
-  const offersByType = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
+function getOfferById (type, offerId) {
+  const offersByType = allOffers[allOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
   const offerIndex = offersByType.findIndex((item) => item.id === offerId);
-  return offerIndex > -1 ? offersByType[offerIndex].title : '';
-}
-
-function getOfferPriceById(type, offerId) {
-  const offersByType = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
-  const offerIndex = offersByType.findIndex((item) => item.id === offerId);
-  return offerIndex > -1 ? offersByType[offerIndex].price : '';
+  return offerIndex > -1 ? offersByType[offerIndex] : '';
 }
 
 function createEventTemplate(event) {
-  const {basePrice, dateFrom, dateTo, destination, type, offers} = event; //id, isFavorite,
+  const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
   const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
@@ -26,16 +20,19 @@ function createEventTemplate(event) {
   const durationHours = dayjs(dateTo).diff(dateFrom, 'h');
   const durationMinuts = Math.round(dayjs(dateTo).diff(dateFrom, 'm', true) % 60);
   const eventDuration = `${durationHours}H ${durationMinuts}M`;
-  const destinationName = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)].name;
-  let selectedOffersHtml = '';
-  //итерация по массиву выбранных предложений (offers)
-  offers.forEach((offerId) => {
-    selectedOffersHtml += `
-    <li class="event__offer">
-      <span class="event__offer-title">${getOfferTitleById(type, offerId)}</span>
-      &plus;&euro;&nbsp;
-      <span class="event__offer-price">${getOfferPriceById(type, offerId)}</span>
-    </li>
+  const destinationName = destinations[destinations.findIndex((item) => item.id === destination)].name;
+  const isEventFavoriteBtnActive = isFavorite ? 'event__favorite-btn--active' : '';
+
+  // eslint-disable-next-line no-unused-vars
+  let selectedOffersTemplate = '';
+  //итерация по массиву выбранных предложений (selectedOffers)
+  selectedOffers.forEach((offerId) => {
+    selectedOffersTemplate += `
+      <li class="event__offer">
+        <span class="event__offer-title">${getOfferById(type, offerId).title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${getOfferById(type, offerId).price}</span>
+      </li>
     `;
   });
 
@@ -61,10 +58,10 @@ function createEventTemplate(event) {
           <h4 class="visually-hidden">Offers:</h4>
           <ul class="event__selected-offers">
 
-            ${selectedOffersHtml}
+            ${selectedOffersTemplate}
 
           </ul>
-          <button class="event__favorite-btn event__favorite-btn--active" type="button">
+          <button class="event__favorite-btn ${isEventFavoriteBtnActive}" type="button">
             <span class="visually-hidden">Add to favorite</span>
             <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
               <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>

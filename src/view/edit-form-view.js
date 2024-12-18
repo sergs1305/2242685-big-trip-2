@@ -1,7 +1,9 @@
 import {createElement} from '../render.js';
-import {EVENT_TYPES, EVENT_EDIT_DATE_FORMAT} from '../const.js';
+import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
+import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter, lastWord} from '../utils.js';
-import {mockDestinations, mockOffers} from '../mock/event.js';
+import {destinations} from '../mock/destinations.js';
+import {allOffers} from '../mock/offers.js';
 
 function createEditFormTemplate (event) {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = event; //id, isFavorite
@@ -16,22 +18,22 @@ function createEditFormTemplate (event) {
       `;
   });
 
-  const currentDestination = mockDestinations[mockDestinations.findIndex((item) => item.id === destination)];
+  const currentDestination = destinations[destinations.findIndex((item) => item.id === destination)];
 
   let destinationsHtml = `
     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestination.name} list="destination-list-1">
     <datalist id="destination-list-1">
     `;
-  for (let i = 0; i < mockDestinations.length; i++) {
+  for (let i = 0; i < destinations.length; i++) {
     destinationsHtml += `
-      <option value=${mockDestinations[i].name}></option>
+      <option value=${destinations[i].name}></option>
     `;
   }
   destinationsHtml += `
     </datalist>
   `;
 
-  const availableOffers = mockOffers[mockOffers.findIndex((item) => item.type === type)].offers; //массив доступных предложений для кокретного type
+  const availableOffers = allOffers[allOffers.findIndex((item) => item.type === type)].offers; //массив доступных предложений для кокретного type
   let availableOffersHtml = '';
   availableOffers.forEach((offer) => {
     const offerShortTitle = lastWord(offer.title);

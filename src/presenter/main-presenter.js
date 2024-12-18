@@ -12,16 +12,15 @@ export default class mainPresenter {
 
   init() {
     this.boardEvents = [...this.eventsModel.getEvents()];
-
+    const listViewComponent = new ListView();
     render(new SortView(), this.boardContainer);
-    render(new ListView(), this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
+    render(listViewComponent, this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
-    const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
-    //console.log(this.boardEvents[0]);
-    render(new EditFormView(this.boardEvents[0]), tripEventsList);
+    //const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
+    render(new EditFormView(this.boardEvents[0]), listViewComponent.getElement());
 
     for (let i = 1; i < this.boardEvents.length; i++) {
-      render(new EventView({event: this.boardEvents[i]}), tripEventsList);
+      render(new EventView({event: this.boardEvents[i]}), listViewComponent.getElement());
     }
   }
 }
