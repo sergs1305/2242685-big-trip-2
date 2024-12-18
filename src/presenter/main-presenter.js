@@ -5,14 +5,22 @@ import ListView from '../view/list-view.js';
 import EventView from '../view/event-view.js';
 
 export default class mainPresenter {
-  init(tripEvents) {
-    render(new SortView(), tripEvents);
-    render(new ListView(), tripEvents); // отрисовываем тэг <ul> - контейнер списка точек маршрута
-    const tripEventsList = tripEvents.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
-    render(new EditFormView(), tripEventsList);
+  constructor ({boardContainer, eventsModel}) {
+    this.boardContainer = boardContainer;
+    this.eventsModel = eventsModel;
+  }
 
-    for (let i = 0; i < 3; i++) {
-      render(new EventView(), tripEventsList);
+  init() {
+    this.boardEvents = [...this.eventsModel.getEvents()];
+    const listViewComponent = new ListView();
+    render(new SortView(), this.boardContainer);
+    render(listViewComponent, this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
+
+    //const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
+    render(new EditFormView(this.boardEvents[0]), listViewComponent.getElement());
+
+    for (let i = 1; i < this.boardEvents.length; i++) {
+      render(new EventView({event: this.boardEvents[i]}), listViewComponent.getElement());
     }
   }
 }
