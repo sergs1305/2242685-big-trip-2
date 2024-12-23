@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils.js';
 import {destinations} from '../mock/destinations.js';
@@ -75,23 +75,13 @@ function createEventTemplate(event) {
   );
 }
 
-export default class EventView {
+export default class EventView extends AbstractView {
   constructor({event}) {
+    super();
     this.event = event;
   }
 
-  getTemplate() {
+  get template() {
     return createEventTemplate(this.event);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

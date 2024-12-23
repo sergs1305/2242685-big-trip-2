@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter, lastWord} from '../utils.js';
@@ -123,23 +123,13 @@ function createEditFormTemplate (event) {
   );
 }
 
-export default class EditFormView {
+export default class EditFormView extends AbstractView {
   constructor(event) {
+    super();
     this.event = event;
   }
 
   getTemplate() {
     return createEditFormTemplate(this.event);
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
