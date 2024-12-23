@@ -8,12 +8,12 @@ const tripMainElement = document.querySelector('.trip-main');
 const tripControlsFiltersElement = tripMainElement.querySelector('.trip-controls__filters');
 const tripEvents = document.querySelector('.trip-events');
 const eventsModel = new EventsModel();
-
-render(new TripInfoView(), tripMainElement, 'AFTERBEGIN');
-render(new FiltersView(), tripControlsFiltersElement);
-
 const mainPresenter = new MainPresenter({
   boardContainer: tripEvents,
   eventsModel
 });
+
+render(new TripInfoView(), tripMainElement, 'AFTERBEGIN');
+render(new FiltersView(), tripControlsFiltersElement);
+
 mainPresenter.init();
