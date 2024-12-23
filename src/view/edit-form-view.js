@@ -129,7 +129,7 @@ export default class EditFormView extends AbstractView {
     this.event = event;
   }
 
-  getTemplate() {
+  get template() {
     return createEditFormTemplate(this.event);
   }
 }

@@ -1,4 +1,4 @@
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import ListView from '../view/list-view.js';
@@ -17,10 +17,10 @@ export default class mainPresenter {
     render(listViewComponent, this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
     //const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
-    render(new EditFormView(this.boardEvents[0]), listViewComponent.getElement());
+    render(new EditFormView(this.boardEvents[0]), listViewComponent.element);
 
     for (let i = 1; i < this.boardEvents.length; i++) {
-      render(new EventView({event: this.boardEvents[i]}), listViewComponent.getElement());
+      render(new EventView({event: this.boardEvents[i]}), listViewComponent.element);
     }
   }
 }
