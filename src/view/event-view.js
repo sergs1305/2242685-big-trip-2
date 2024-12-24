@@ -12,6 +12,7 @@ function getOfferById (type, offerId) {
 }
 
 function createEventTemplate(event) {
+  //console.log(event);
   const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
@@ -76,12 +77,23 @@ function createEventTemplate(event) {
 }
 
 export default class EventView extends AbstractView {
-  constructor({event}) {
+  #onEditBtnClick = null;
+  #event = null;
+
+  constructor({event, onEditBtnClick}) {
     super();
-    this.event = event;
+    this.#event = event;
+    this.#onEditBtnClick = onEditBtnClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editBtnClickHandler); // кнопка "стрелка вниз"
   }
 
   get template() {
-    return createEventTemplate(this.event);
+    return createEventTemplate(this.#event);
   }
+
+  #editBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onEditBtnClick();
+  };
 }

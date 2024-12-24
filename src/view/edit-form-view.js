@@ -124,12 +124,24 @@ function createEditFormTemplate (event) {
 }
 
 export default class EditFormView extends AbstractView {
-  constructor(event) {
+  #onFormSubmit = null;
+  #event = null;
+
+  constructor({event, onFormSubmit}) {
     super();
-    this.event = event;
+    this.#event = event;
+    this.#onFormSubmit = onFormSubmit;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
   }
 
   get template() {
-    return createEditFormTemplate(this.event);
+    return createEditFormTemplate(this.#event);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFormSubmit();
+  };
 }
