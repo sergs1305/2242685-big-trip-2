@@ -3,6 +3,7 @@ import SortView from '../view/sort-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import ListView from '../view/list-view.js';
 import EventView from '../view/event-view.js';
+import ListEmptyView from '../view/list-empty-view.js';
 
 export default class mainPresenter {
   #boardContainer = null;
@@ -21,6 +22,12 @@ export default class mainPresenter {
 
   #renderBoard() {
     const listViewComponent = new ListView();
+
+    if (this.#boardEvents.length === 0) {
+      render(new ListEmptyView(), this.#boardContainer);
+      return;
+    }
+
     render(new SortView(), this.#boardContainer);
     render(listViewComponent, this.#boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
