@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
-import {formatDate, capitalizeFirstLetter} from '../utils.js';
+import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
 import {destinations} from '../mock/destinations.js';
 import {allOffers} from '../mock/offers.js';
 import dayjs from 'dayjs';

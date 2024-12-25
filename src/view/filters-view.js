@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import capitalizeFirstLetter from '../utils.js';
+import {capitalizeFirstLetter} from '../utils/common.js';
 
 function createFilterTemplate(filterName, isDisabled = false, isChecked = false) {
   return (
@@ -12,24 +12,29 @@ function createFilterTemplate(filterName, isDisabled = false, isChecked = false)
   );
 }
 
-function createFiltersTemplate(filters) { //filters - массив пар "название фильтра" и "кол-во events" (удовлетворяющих фильтру) (либо второе свойство - доступность (если кол-во events > 0))
+function createFiltersTemplate(filters) { //filters - массив пар "название фильтра" и "кол-во events" (удовлетворяющих фильтру) (либо второе свойство - доступность (если кол-во events > 0), либо массив events)
   let filtersTemplate = '';
-  for (let i = 0; i < filters.length(); i++) {
-    filtersTemplate += createFilterTemplate(filters[i].name);
-  }
+  filters.forEach((filter) => {
+    filtersTemplate += createFilterTemplate(filter.name, !filter.enabled);
+  });
 
   return (
     `<form class="trip-filters" action="#" method="get">
-
       ${filtersTemplate}
-
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>`
   );
 }
 
 export default class FiltersView extends AbstractView {
+  #filters = null;
+
+  constructor(filters) {
+    super();
+    this.#filters = filters;
+  }
+
   get template() {
-    return createFiltersTemplate();
+    return createFiltersTemplate(this.#filters);
   }
 }

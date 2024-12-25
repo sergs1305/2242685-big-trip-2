@@ -1,5 +1,5 @@
 import {EVENT_TYPES, TOTAL_EVENTS_COUNT, MIN_BASE_PRICE, MAX_BASE_PRICE, START_DATE, END_DATE, START_HOUR, END_HOUR, MIN_DURATION, MAX_DURATION} from './const.js';
-import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils.js';
+import {getRandomArrayElement, getRandomInteger, getRandomDate} from '../utils/common.js';
 import dayjs from 'dayjs';
 import {destinations} from './destinations.js';
 import {getEventOffers} from './offers.js';

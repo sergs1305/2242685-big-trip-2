@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
-import {formatDate, capitalizeFirstLetter, lastWord} from '../utils.js';
+import {formatDate, capitalizeFirstLetter, lastWord} from '../utils/common.js';
 import {destinations} from '../mock/destinations.js';
 import {allOffers} from '../mock/offers.js';
 
@@ -24,11 +24,11 @@ function createEditFormTemplate (event) {
     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestination.name} list="destination-list-1">
     <datalist id="destination-list-1">
     `;
-  for (let i = 0; i < destinations.length; i++) {
+  destinations.forEach((destinationItem) => {
     destinationsHtml += `
-      <option value=${destinations[i].name}></option>
-    `;
-  }
+      <option value=${destinationItem.name}></option>
+     `;
+  });
   destinationsHtml += `
     </datalist>
   `;
@@ -64,9 +64,7 @@ function createEditFormTemplate (event) {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-
                 ${eventTypesHtml}
-
               </fieldset>
             </div>
           </div>
@@ -75,9 +73,7 @@ function createEditFormTemplate (event) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${capitalizeFirstLetter(type)}
             </label>
-
             ${destinationsHtml}
-
           </div>
 
           <div class="event__field-group  event__field-group--time">
@@ -107,9 +103,7 @@ function createEditFormTemplate (event) {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-
               ${availableOffersHtml}
-
             </div>
           </section>
 
