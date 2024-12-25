@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter, lastWord} from '../utils.js';
@@ -123,23 +123,25 @@ function createEditFormTemplate (event) {
   );
 }
 
-export default class EditFormView {
-  constructor(event) {
-    this.event = event;
+export default class EditFormView extends AbstractView {
+  #onFormSubmit = null;
+  #event = null;
+
+  constructor({event, onFormSubmit}) {
+    super();
+    this.#event = event;
+    this.#onFormSubmit = onFormSubmit;
+
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
   }
 
-  getTemplate() {
-    return createEditFormTemplate(this.event);
+  get template() {
+    return createEditFormTemplate(this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#onFormSubmit();
+  };
 }

@@ -1,4 +1,4 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils.js';
 import {destinations} from '../mock/destinations.js';
@@ -12,6 +12,7 @@ function getOfferById (type, offerId) {
 }
 
 function createEventTemplate(event) {
+  //console.log(event);
   const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
@@ -75,23 +76,24 @@ function createEventTemplate(event) {
   );
 }
 
-export default class EventView {
-  constructor({event}) {
-    this.event = event;
+export default class EventView extends AbstractView {
+  #onEditBtnClick = null;
+  #event = null;
+
+  constructor({event, onEditBtnClick}) {
+    super();
+    this.#event = event;
+    this.#onEditBtnClick = onEditBtnClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editBtnClickHandler); // кнопка "стрелка вниз"
   }
 
-  getTemplate() {
-    return createEventTemplate(this.event);
+  get template() {
+    return createEventTemplate(this.#event);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editBtnClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#onEditBtnClick();
+  };
 }

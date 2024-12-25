@@ -1,26 +1,63 @@
-import {render} from '../render.js';
+import {render, replace} from '../framework/render.js';
 import SortView from '../view/sort-view.js';
 import EditFormView from '../view/edit-form-view.js';
 import ListView from '../view/list-view.js';
 import EventView from '../view/event-view.js';
 
 export default class mainPresenter {
+  #boardContainer = null;
+  #eventsModel = null;
+  #boardEvents = [];
+
   constructor ({boardContainer, eventsModel}) {
-    this.boardContainer = boardContainer;
-    this.eventsModel = eventsModel;
+    this.#boardContainer = boardContainer;
+    this.#eventsModel = eventsModel;
   }
 
   init() {
-    this.boardEvents = [...this.eventsModel.getEvents()];
+    this.#boardEvents = [...this.#eventsModel.events];
+    this.#renderBoard();
+  }
+
+  #renderBoard() {
     const listViewComponent = new ListView();
-    render(new SortView(), this.boardContainer);
-    render(listViewComponent, this.boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
+    render(new SortView(), this.#boardContainer);
+    render(listViewComponent, this.#boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
-    //const tripEventsList = this.boardContainer.querySelector('.trip-events__list'); //css-класс '.trip-events__list' появится в разметке после отрисовки тэга <ul>
-    render(new EditFormView(this.boardEvents[0]), listViewComponent.getElement());
-
-    for (let i = 1; i < this.boardEvents.length; i++) {
-      render(new EventView({event: this.boardEvents[i]}), listViewComponent.getElement());
+    for (let i = 0; i < this.#boardEvents.length; i++) {
+      this.#renderEvent(this.#boardEvents[i], listViewComponent);
     }
   }
+
+  #renderEvent(event, listViewComponent) {
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        replaceFormToCard();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+    const eventViewComponent = new EventView({
+      event,
+      onEditBtnClick: () => {
+        replaceCardToForm();
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
+    });
+    const editFormViewComponent = new EditFormView({
+      event,
+      onFormSubmit: () => {
+        replaceFormToCard();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    });
+    function replaceCardToForm() {
+      replace(editFormViewComponent, eventViewComponent);
+    }
+    function replaceFormToCard() {
+      replace(eventViewComponent, editFormViewComponent);
+    }
+    render(eventViewComponent, listViewComponent.element);
+  }
+
 }
