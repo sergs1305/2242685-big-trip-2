@@ -1,5 +1,5 @@
 import {EVENT_TYPES, MIN_OFFERS_COUNT, MAX_OFFERS_COUNT, MIN_OFFER_PRICE, MAX_OFFER_PRICE, OFFERS_TITLES} from './const.js';
-import {getRandomInteger} from '../utils.js';
+import {getRandomInteger} from '../utils/common.js';
 
 // заполнение массива mockAllOffers
 const mockAllOffers = [];
