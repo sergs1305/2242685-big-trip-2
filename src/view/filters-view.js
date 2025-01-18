@@ -13,10 +13,11 @@ function createFilterTemplate(filterName, isDisabled = false, isChecked = false)
 }
 
 function createFiltersTemplate(filters) { //filters - массив пар "название фильтра" и "кол-во events" (удовлетворяющих фильтру) (либо второе свойство - доступность (если кол-во events > 0), либо массив events)
-  let filtersTemplate = '';
-  filters.forEach((filter) => {
-    filtersTemplate += createFilterTemplate(filter.name, !filter.enabled);
-  });
+  const filtersTemplate = filters.reduce((accumulator, filter) => accumulator + createFilterTemplate(filter.name, !filter.enabled), '');
+  // let filtersTemplate = '';
+  // filters.forEach((filter) => {
+  //   filtersTemplate += createFilterTemplate(filter.name, !filter.enabled);
+  // });
 
   return (
     `<form class="trip-filters" action="#" method="get">
@@ -27,7 +28,7 @@ function createFiltersTemplate(filters) { //filters - массив пар "на�
 }
 
 export default class FiltersView extends AbstractView {
-  #filters = null;
+  #filters = [];
 
   constructor(filters) {
     super();
