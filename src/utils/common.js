@@ -30,4 +30,8 @@ function lastWord(str) {
   return str.trimRight().split(' ').pop().toLowerCase();
 }
 
-export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter, lastWord};
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
+export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter, lastWord, updateItem};

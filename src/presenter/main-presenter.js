@@ -1,14 +1,17 @@
-import {render, replace} from '../framework/render.js';
+import {render} from '../framework/render.js';
 import SortView from '../view/sort-view.js';
-import EditFormView from '../view/edit-form-view.js';
+//import EditFormView from '../view/edit-form-view.js';
 import ListView from '../view/list-view.js';
-import EventView from '../view/event-view.js';
+//import EventView from '../view/event-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
+import EventPresenter from './event-presenter.js';
+import {updateItem} from '../utils/common.js';
 
-export default class mainPresenter {
+export default class MainPresenter {
   #boardContainer = null;
   #eventsModel = null;
   #boardEvents = [];
+  #eventPresenters = new Map();
 
   constructor ({boardContainer, eventsModel}) {
     this.#boardContainer = boardContainer;
@@ -32,39 +35,19 @@ export default class mainPresenter {
     render(listViewComponent, this.#boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
     for (let i = 0; i < this.#boardEvents.length; i++) {
-      this.#renderEvent(this.#boardEvents[i], listViewComponent);
+      const eventPresenter = new EventPresenter({
+        //event: this.#boardEvents[i],
+        listViewComponent,
+        onDataChange: this.#handleEventChange,
+      });
+      eventPresenter.init(this.#boardEvents[i]);
+      this.#eventPresenters.set(this.#boardEvents[i].id, eventPresenter);
     }
   }
 
-  #renderEvent(event, listViewComponent) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-    const eventViewComponent = new EventView({
-      event,
-      onEditBtnClick: () => {
-        replaceCardToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
-    });
-    const editFormViewComponent = new EditFormView({
-      event,
-      onFormSubmit: () => {
-        replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    });
-    function replaceCardToForm() {
-      replace(editFormViewComponent, eventViewComponent);
-    }
-    function replaceFormToCard() {
-      replace(eventViewComponent, editFormViewComponent);
-    }
-    render(eventViewComponent, listViewComponent.element);
-  }
+  #handleEventChange = (updatedEvent) => {
+    this.#boardEvents = updateItem(this.#boardEvents, updatedEvent);
+    this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
 
 }
