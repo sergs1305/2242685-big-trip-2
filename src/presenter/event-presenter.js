@@ -46,18 +46,18 @@ export default class EventPresenter {
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {
-      console.log(this.#eventViewComponent, this.#listViewComponent);
-      render(this.#eventViewComponent, this.#listViewComponent);
+      //console.log(this.#eventViewComponent, this.#listViewComponent);
+      render(this.#eventViewComponent, this.#listViewComponent.element);
       return;
     }
 
     // Проверка на наличие в DOM необходима,
     // чтобы не пытаться заменить то, что не было отрисовано
-    if (this.#listViewComponent.contains(prevEventViewComponent.element)) {
+    if (this.#listViewComponent.element.contains(prevEventViewComponent.element)) {
       replace(this.#eventViewComponent, prevEventViewComponent);
     }
 
-    if (this.#listViewComponent.contains(prevEventEditComponent.element)) {
+    if (this.#listViewComponent.element.contains(prevEventEditComponent.element)) {
       replace(this.#eventEditComponent, prevEventEditComponent);
     }
 
