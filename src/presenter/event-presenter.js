@@ -2,17 +2,25 @@ import {render, replace, remove} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import EventView from '../view/event-view.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class EventPresenter {
   #event = null;
   #listViewComponent = null;
   #handleDataChange = null;
   #eventViewComponent = null;
   #eventEditComponent = null;
+  #handleModeChange = null;
+  #mode = Mode.DEFAULT;
 
-  constructor ({listViewComponent, onDataChange}) {
+  constructor ({listViewComponent, onDataChange, onModeChange}) {
     //this.#event = event;
     this.#listViewComponent = listViewComponent;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init(event) {
@@ -46,18 +54,18 @@ export default class EventPresenter {
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {
-      //console.log(this.#eventViewComponent, this.#listViewComponent);
       render(this.#eventViewComponent, this.#listViewComponent.element);
       return;
     }
 
-    // Проверка на наличие в DOM необходима,
-    // чтобы не пытаться заменить то, что не было отрисовано
-    if (this.#listViewComponent.element.contains(prevEventViewComponent.element)) {
+    // Проверка на наличие в DOM необходима, чтобы не пытаться заменить то, что не было отрисовано
+    //if (this.#listViewComponent.element.contains(prevEventViewComponent.element)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventViewComponent, prevEventViewComponent);
     }
 
-    if (this.#listViewComponent.element.contains(prevEventEditComponent.element)) {
+    //if (this.#listViewComponent.element.contains(prevEventEditComponent.element)) {
+    if (this.#mode === Mode.EDITING) {
       replace(this.#eventEditComponent, prevEventEditComponent);
     }
 
@@ -67,16 +75,25 @@ export default class EventPresenter {
     //    render(this.#eventViewComponent, this.#listViewComponent.element);
   }
 
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
+  }
+
   #handleFavoriteClick = () => {
     this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite});
   };
 
   #replaceCardToForm() {
     replace(this.#eventEditComponent, this.#eventViewComponent);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToCard() {
     replace(this.#eventViewComponent, this.#eventEditComponent);
+    this.#mode = Mode.DEFAULT;
   }
 
 }

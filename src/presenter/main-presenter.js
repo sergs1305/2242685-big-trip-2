@@ -20,10 +20,7 @@ export default class MainPresenter {
 
   init() {
     this.#boardEvents = [...this.#eventsModel.events];
-    this.#renderBoard();
-  }
 
-  #renderBoard() {
     const listViewComponent = new ListView();
 
     if (this.#boardEvents.length === 0) {
@@ -36,9 +33,9 @@ export default class MainPresenter {
 
     for (let i = 0; i < this.#boardEvents.length; i++) {
       const eventPresenter = new EventPresenter({
-        //event: this.#boardEvents[i],
         listViewComponent,
         onDataChange: this.#handleEventChange,
+        onModeChange: this.#handleModeChange,
       });
       eventPresenter.init(this.#boardEvents[i]);
       this.#eventPresenters.set(this.#boardEvents[i].id, eventPresenter);
@@ -48,6 +45,10 @@ export default class MainPresenter {
   #handleEventChange = (updatedEvent) => {
     this.#boardEvents = updateItem(this.#boardEvents, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+  };
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
 }
