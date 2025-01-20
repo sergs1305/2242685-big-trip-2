@@ -77,20 +77,30 @@ function createEventTemplate(event) {
 }
 
 export default class EventView extends AbstractView {
+  #onFavoriteClick = null;
   #onEditBtnClick = null;
   #event = null;
 
-  constructor({event, onEditBtnClick}) {
+  constructor({event, onFavoriteClick, onEditBtnClick}) {
     super();
     this.#event = event;
+    this.#onFavoriteClick = onFavoriteClick;
     this.#onEditBtnClick = onEditBtnClick;
 
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler); // кнопка "звёздочка"
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editBtnClickHandler); // кнопка "стрелка вниз"
   }
 
   get template() {
     return createEventTemplate(this.#event);
   }
+
+  #favoriteClickHandler = (evt) => {
+    //const favoriteBtn = evt.target;
+    evt.preventDefault();
+    this.#onFavoriteClick();
+    //favoriteBtn.replaceWith(createFavoriteBtnTemplate(this.#event));
+  };
 
   #editBtnClickHandler = (evt) => {
     evt.preventDefault();
