@@ -27,8 +27,6 @@ export default class EventPresenter {
     this.#event = event;
     const prevEventViewComponent = this.#eventViewComponent;
     const prevEventEditComponent = this.#eventEditComponent;
-    //this.#boardEvents = [...this.#eventsModel.events];
-    //this.#renderEvent(event, this.#listViewComponent);
 
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape') {
@@ -71,8 +69,11 @@ export default class EventPresenter {
 
     remove(prevEventViewComponent);
     remove(prevEventEditComponent);
+  }
 
-    //    render(this.#eventViewComponent, this.#listViewComponent.element);
+  destroy() {
+    remove(this.#eventViewComponent);
+    remove(this.#eventEditComponent);
   }
 
   resetView() {
