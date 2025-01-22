@@ -1,7 +1,7 @@
 // --- constants for mock data ---
 const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 const OFFERS_TITLES = ['Order Uber', 'Add luggage', 'Private room', 'Add breakfast', 'Rent a car', 'Switch to comfort class', 'Add kangaroo meat', 'Choose seats', 'Add lunch', 'Add local wine'];
-const TOTAL_EVENTS_COUNT = 10; //количество точек в массиве - справочнике (mockEvents)
+const TOTAL_EVENTS_COUNT = 5; //количество точек в массиве - справочнике (mockEvents)
 const MIN_BASE_PRICE = 1000;
 const MAX_BASE_PRICE = 1500;
 const START_DATE = new Date('01/20/2025');

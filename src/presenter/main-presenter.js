@@ -1,12 +1,9 @@
-import {render} from '../framework/render.js';
+import {render, remove} from '../framework/render.js';
 import SortView from '../view/sort-view.js';
-//import EditFormView from '../view/edit-form-view.js';
 import ListView from '../view/list-view.js';
-//import EventView from '../view/event-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import {updateItem} from '../utils/common.js';
-//import {sortTaskUp, sortTaskDown} from '../utils/task.js'; !!!
 import {SortType} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 
@@ -23,11 +20,16 @@ export default class MainPresenter {
   constructor ({boardContainer, eventsModel}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
+    this.#boardEvents = [...this.#eventsModel.events];
+    this.#sourcedBoardEvents = [...this.#eventsModel.events];
   }
 
   init() {
-    this.#boardEvents = [...this.#eventsModel.events];
-    this.#sourcedBoardEvents = [...this.#eventsModel.events];
+    this.#sortEvents(this.#currentSortType);
+    this.#renderBoard();
+  }
+
+  #renderBoard = () => {
     this.#listViewComponent = new ListView();
 
     if (this.#boardEvents.length === 0) {
@@ -35,20 +37,17 @@ export default class MainPresenter {
       return;
     }
 
-    //render(new SortView(), this.#boardContainer);
     this.#renderSort();
     render(this.#listViewComponent, this.#boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
     this.#renderEvents();
+  };
 
-    // for (let i = 0; i < this.#boardEvents.length; i++) {
-    //   const eventPresenter = new EventPresenter({
-    //     listViewComponent,
-    //     onDataChange: this.#handleEventChange,
-    //     onModeChange: this.#handleModeChange,
-    //   });
-    //   eventPresenter.init(this.#boardEvents[i]);
-    //   this.#eventPresenters.set(this.#boardEvents[i].id, eventPresenter);
-    // }
+  #clearBoard() {
+    //this.#newEventPresenter.destroy();
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
+
+    remove(this.#sortComponent);
   }
 
   #renderEvents = () => {
@@ -80,9 +79,11 @@ export default class MainPresenter {
     }
     this.#sortEvents(sortType);
     // - Очищаем список
-    this.#clearEventsList();
+    //this.#clearEventsList();
+    this.#clearBoard();
     // - Рендерим список заново
-    this.#renderEvents();
+    //this.#renderEvents();
+    this.#renderBoard();
   };
 
   #sortEvents(sortType) {
@@ -110,14 +111,9 @@ export default class MainPresenter {
 
   #renderSort() {
     this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
     render(this.#sortComponent, this.#boardContainer); //RenderPosition.AFTERBEGIN
-  }
-
-  #clearEventsList() {
-    this.#eventPresenters.forEach((presenter) => presenter.destroy());
-    this.#eventPresenters.clear();
-    //this.#renderedTaskCount = TASK_COUNT_PER_STEP;
   }
 }
