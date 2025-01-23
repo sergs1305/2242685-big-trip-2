@@ -26,8 +26,8 @@ for (let i = 0; i < TOTAL_EVENTS_COUNT; i++) {
   };
 }
 
-function getRandomEvent() {
-  return getRandomArrayElement(mockEvents);
-}
+// function getRandomEvent() {
+//   return getRandomArrayElement(mockEvents);
+// }
 
-export {getRandomEvent};
+export {mockEvents};
