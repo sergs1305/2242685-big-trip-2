@@ -4,7 +4,6 @@ import ListView from '../view/list-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import {updateItem} from '../utils/common.js';
-import {SortType} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 
 export default class MainPresenter {
@@ -13,7 +12,7 @@ export default class MainPresenter {
   #boardEvents = [];
   #eventPresenters = new Map();
   #sortComponent = null;
-  #currentSortType = SortType.DAY;
+  #currentSortType = 'day';
   #sourcedBoardEvents = [];
   #listViewComponent = null;
 
@@ -43,7 +42,6 @@ export default class MainPresenter {
   };
 
   #clearBoard() {
-    //this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 
@@ -88,23 +86,15 @@ export default class MainPresenter {
 
   #sortEvents(sortType) {
     switch (sortType) {
-      case SortType.DAY:
+      case 'day':
         this.#boardEvents.sort(sortByDay);
         break;
-      // case SortType.EVENT:
-      //   this.#boardEvents.sort(sortByEvent);
-      //   break;
-      case SortType.TIME:
+      case 'time':
         this.#boardEvents.sort(sortByTime);
         break;
-      case SortType.PRICE:
+      case 'price':
         this.#boardEvents.sort(sortByPrice);
         break;
-      // case SortType.OFFER:
-      //   this.#boardEvents.sort(sortByOffer);
-      //   break;
-      default:
-        this.#boardEvents = [...this.#sourcedBoardEvents];
     }
     this.#currentSortType = sortType;
   }
