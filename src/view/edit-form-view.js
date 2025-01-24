@@ -1,9 +1,21 @@
-import AbstractView from '../framework/view/abstract-view.js';
+//import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter, lastWord} from '../utils/common.js';
 import {destinations} from '../mock/destinations.js';
 import {allOffers} from '../mock/offers.js';
+
+const BLANK_EVENT = {
+  id: null,
+  dateFrom: null,
+  dateTo: null,
+  type :null,
+  destination: null,
+  basePrice: 0,
+  offers: null,
+  isFavorite: false,
+};
 
 function createEditFormTemplate (event) {
   const {basePrice, dateFrom, dateTo, type, destination, offers} = event; //id, isFavorite
@@ -48,6 +60,14 @@ function createEditFormTemplate (event) {
         </label>
       </div>
       `;
+  });
+
+  const pictures = destinations[destinations.findIndex((item) => item.id === destination)].pictures; //массив фотографий для текущего destination
+  let photosHtml = '';
+  pictures.forEach((picture) => {
+    photosHtml += `
+      <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+     `;
   });
 
   return (
@@ -110,6 +130,11 @@ function createEditFormTemplate (event) {
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${currentDestination.description}</p>
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${photosHtml}
+              </div>
+            </div>
           </section>
         </section>
       </form>
@@ -117,25 +142,73 @@ function createEditFormTemplate (event) {
   );
 }
 
-export default class EditFormView extends AbstractView {
-  #onFormSubmit = null;
+export default class EditFormView extends AbstractStatefulView {
+  #handleFormSubmit = null;
   #event = null;
 
-  constructor({event, onFormSubmit}) {
+  constructor({event = BLANK_EVENT, handleFormSubmit}) {
     super();
     this.#event = event;
-    this.#onFormSubmit = onFormSubmit;
-
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
+    this.#handleFormSubmit = handleFormSubmit;
+    this._setState(EditFormView.parseEventToState(event));
+    this._restoreHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this.#event);
+    return createEditFormTemplate(this._state);
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onFormSubmit();
+    this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
   };
+
+  #eventTypeHandler = (evt) => {
+    evt.preventDefault();
+
+    if (!evt.target.className.includes('event__type-label')) {
+      return;
+    }
+
+    this._state.type = evt.target.parentElement.querySelector('.event__type-input').value; //найти в родительском элементе класс event__type-input и взять его value
+    this.updateElement({
+      type: this._state.type,
+    });
+    //this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
+  };
+
+  #destinationHandler = (evt) => {
+    evt.preventDefault();
+
+    const selectedDestinationIndex = destinations.findIndex((item) => item.name === evt.target.value);
+
+    if (selectedDestinationIndex === -1) {
+      return;
+    }
+
+    this._state.destination = destinations[selectedDestinationIndex].id;
+    this.updateElement({
+      destination: this._state.destination,
+    });
+  };
+
+  _restoreHandlers = () => {
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
+  };
+
+  static parseEventToState(event) {
+    return {...event,
+      // isDueDate: task.dueDate !== null,
+      // isRepeating: isTaskRepeating(task.repeating),
+    };
+  }
+
+  static parseStateToEvent(state) {
+    const event = {...state};
+    return event;
+  }
 }
+
