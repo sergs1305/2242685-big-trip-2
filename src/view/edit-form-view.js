@@ -152,10 +152,6 @@ export default class EditFormView extends AbstractStatefulView {
     this.#handleFormSubmit = handleFormSubmit;
     this._setState(EditFormView.parseEventToState(event));
     this._restoreHandlers();
-
-    // this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    // this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    // this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
   }
 
   get template() {
@@ -173,6 +169,7 @@ export default class EditFormView extends AbstractStatefulView {
     if (!evt.target.className.includes('event__type-label')) {
       return;
     }
+
     this._state.type = evt.target.parentElement.querySelector('.event__type-input').value; //найти в родительском элементе класс event__type-input и взять его value
     this.updateElement({
       type: this._state.type,
@@ -180,28 +177,27 @@ export default class EditFormView extends AbstractStatefulView {
     //this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
   };
 
-//!!!!!!!!!
-//************* */
-//
   #destinationHandler = (evt) => {
     evt.preventDefault();
 
-    if (!evt.target.className.includes('event__type-label')) {
+    const selectedDestinationIndex = destinations.findIndex((item) => item.name === evt.target.value);
+
+    if (selectedDestinationIndex === -1) {
       return;
     }
-    this._state.destination = evt.target.parentElement.querySelector('.event__type-input').value; //найти в родительском элементе класс event__type-input и взять его value
+
+    this._state.destination = destinations[selectedDestinationIndex].id;
     this.updateElement({
-      type: this._state.type,
+      destination: this._state.destination,
     });
   };
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    this.element.querySelector('#destination-list-1').addEventListener('click', this.#destinationHandler); //destination-list-1
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
   };
-
 
   static parseEventToState(event) {
     return {...event,
