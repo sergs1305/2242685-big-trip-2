@@ -35,6 +35,7 @@ export default class EventPresenter {
         document.removeEventListener('keydown', escKeyDownHandler);
       }
     };
+
     this.#eventViewComponent = new EventView({
       event: this.#event,
       onFavoriteClick: this.#handleFavoriteClick,
