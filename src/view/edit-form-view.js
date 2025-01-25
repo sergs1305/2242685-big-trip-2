@@ -146,13 +146,17 @@ function createEditFormTemplate (event) {
 
 export default class EditFormView extends AbstractStatefulView {
   #handleFormSubmit = null;
+  #handleFormCancel = null;
+  #handleDeleteClick = null;
   #event = null;
   #datepicker = null;
 
-  constructor({event = BLANK_EVENT, handleFormSubmit}) {
+  constructor({event = BLANK_EVENT, onFormSubmit, onFormCancel, onDeleteClick}) {
     super();
     this.#event = event;
-    this.#handleFormSubmit = handleFormSubmit;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormCancel = onFormCancel;
+    this.#handleDeleteClick = onDeleteClick;
     this._setState(EditFormView.parseEventToState(event));
     this._restoreHandlers();
   }
@@ -233,11 +237,17 @@ export default class EditFormView extends AbstractStatefulView {
     );
   }
 
+  reset(event) {
+    this.updateElement(
+      EditFormView.parseEventToState(event),
+    );
+  }
+
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
   };
