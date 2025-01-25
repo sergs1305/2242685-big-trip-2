@@ -86,7 +86,10 @@ export default class EventView extends AbstractView {
     this.#event = event;
     this.#onFavoriteClick = onFavoriteClick;
     this.#onEditBtnClick = onEditBtnClick;
+    this.init();
+  }
 
+  init() {
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler); // кнопка "звёздочка"
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editBtnClickHandler); // кнопка "стрелка вниз"
   }
@@ -105,5 +108,7 @@ export default class EventView extends AbstractView {
   #editBtnClickHandler = (evt) => {
     evt.preventDefault();
     this.#onEditBtnClick();
+    this.element.querySelector('.event__favorite-btn').removeEventListener('click', this.#favoriteClickHandler); // кнопка "звёздочка"
+    this.element.querySelector('.event__rollup-btn').removeEventListener('click', this.#editBtnClickHandler); // кнопка "стрелка вниз"
   };
 }

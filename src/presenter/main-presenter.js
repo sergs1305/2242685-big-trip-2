@@ -64,6 +64,7 @@ export default class MainPresenter {
     this.#boardEvents = updateItem(this.#boardEvents, updatedEvent);
     this.#sourcedBoardEvents = updateItem(this.#sourcedBoardEvents, updatedEvent);
     this.#eventPresenters.get(updatedEvent.id).init(updatedEvent);
+    //this.init();
   };
 
   #handleModeChange = () => {
@@ -77,10 +78,8 @@ export default class MainPresenter {
     }
     this.#sortEvents(sortType);
     // - Очищаем список
-    //this.#clearEventsList();
     this.#clearBoard();
     // - Рендерим список заново
-    //this.#renderEvents();
     this.#renderBoard();
   };
 

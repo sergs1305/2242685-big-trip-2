@@ -5,6 +5,8 @@ import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter, lastWord} from '../utils/common.js';
 import {destinations} from '../mock/destinations.js';
 import {allOffers} from '../mock/offers.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
   id: null,
@@ -144,12 +146,17 @@ function createEditFormTemplate (event) {
 
 export default class EditFormView extends AbstractStatefulView {
   #handleFormSubmit = null;
+  #handleFormCancel = null;
+  #handleDeleteClick = null;
   #event = null;
+  #datepicker = null;
 
-  constructor({event = BLANK_EVENT, handleFormSubmit}) {
+  constructor({event = BLANK_EVENT, onFormSubmit, onFormCancel, onDeleteClick}) {
     super();
     this.#event = event;
-    this.#handleFormSubmit = handleFormSubmit;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormCancel = onFormCancel;
+    this.#handleDeleteClick = onDeleteClick;
     this._setState(EditFormView.parseEventToState(event));
     this._restoreHandlers();
   }
@@ -192,11 +199,57 @@ export default class EditFormView extends AbstractStatefulView {
     });
   };
 
+  #dateFromChangeHandler = ([selectedDate]) => {
+    this.updateElement({
+      dateFrom: selectedDate,
+    });
+  };
+
+  #dateToChangeHandler = ([selectedDate]) => {
+    this.updateElement({
+      dateTo: selectedDate,
+    });
+  };
+
+  #setDatepickerFrom() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('input[name="event-start-time"]'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateFrom,
+        minDate: 'today',
+        onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+      },
+    );
+  }
+
+  #setDatepickerTo() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('input[name="event-end-time"]'),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._state.dateTo,
+        minDate: this._state.dateFrom,
+        onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+      },
+    );
+  }
+
+  reset(event) {
+    this.updateElement(
+      EditFormView.parseEventToState(event),
+    );
+  }
+
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formSubmitHandler); // кнопка "стрелка вниз"
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
   };
 
   static parseEventToState(event) {

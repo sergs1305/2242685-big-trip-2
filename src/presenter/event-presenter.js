@@ -28,28 +28,20 @@ export default class EventPresenter {
     const prevEventViewComponent = this.#eventViewComponent;
     const prevEventEditComponent = this.#eventEditComponent;
 
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        this.#replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
     this.#eventViewComponent = new EventView({
       event: this.#event,
       onFavoriteClick: this.#handleFavoriteClick,
       onEditBtnClick: () => {
         this.#replaceCardToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+        // const eventRollupBtn = this.querySelector('.event__rollup-btn');
+        // eventRollupBtn.addEventListener('click', this.#eventRollupBtnHandler);
+      },
     });
     this.#eventEditComponent = new EditFormView({
       event: this.#event,
-      onFormSubmit: () => {
-        this.#replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
+      onFormSubmit: this.#handleFormSubmit,
+      onFormCancel: this.#handleFormCancel,
+      onDeleteClick: this.#handleFormDelete,
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {
@@ -79,9 +71,41 @@ export default class EventPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#eventEditComponent.reset(this.#event);
       this.#replaceFormToCard();
     }
   }
+
+  #handleFormSubmit = (update) => { //(update)
+    this.#replaceFormToCard();
+    this.#handleDataChange(update);
+    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
+    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
+    //const isMinorUpdate =
+    // !isDatesEqual(this.#task.dueDate, update.dueDate) ||
+    // isTaskRepeating(this.#task.repeating) !== isTaskRepeating(update.repeating);
+
+    // this.#handleDataChange(
+    //   UserAction.UPDATE_TASK,
+    //   isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+    //   update,
+    //);
+  };
+
+  #handleFormDelete = () => {
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      this.#handleFormCancel(evt);
+    }
+  };
+
+  #handleFormCancel = (evt) => {
+    evt.preventDefault();
+    this.#eventEditComponent.reset(this.#event);
+    this.#replaceFormToCard();
+  };
 
   #handleFavoriteClick = () => {
     this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite});
@@ -90,11 +114,14 @@ export default class EventPresenter {
   #replaceCardToForm() {
     replace(this.#eventEditComponent, this.#eventViewComponent);
     this.#handleModeChange();
+    document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.EDITING;
   }
 
   #replaceFormToCard() {
     replace(this.#eventViewComponent, this.#eventEditComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#eventViewComponent.init();
     this.#mode = Mode.DEFAULT;
   }
 
