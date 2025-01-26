@@ -19,35 +19,11 @@ const BLANK_EVENT = {
   isFavorite: false,
 };
 
-function createEditFormTemplate (event) {
-  const {basePrice, dateFrom, dateTo, type, destination, offers} = event; //id, isFavorite
-  let eventTypesHtml = '';
-
-  EVENT_TYPES.forEach((eventType) => {
-    eventTypesHtml += `
-      <div class="event__type-item">
-        <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${eventType}>
-        <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${capitalizeFirstLetter(eventType)}</label>
-      </div>
-      `;
-  });
-
-  const currentDestination = destinations[destinations.findIndex((item) => item.id === destination)];
-
-  let destinationsHtml = `
-    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestination.name} list="destination-list-1">
-    <datalist id="destination-list-1">
-    `;
-  destinations.forEach((destinationItem) => {
-    destinationsHtml += `
-      <option value=${destinationItem.name}></option>
-     `;
-  });
-  destinationsHtml += `
-    </datalist>
-  `;
-
+function createEventSectionOffers (offers, type) {
   const availableOffers = allOffers[allOffers.findIndex((item) => item.type === type)].offers; //массив доступных предложений для кокретного type
+  if (availableOffers.length === 0) {
+    return '';
+  }
   let availableOffersHtml = '';
   availableOffers.forEach((offer) => {
     const offerShortTitle = lastWord(offer.title);
@@ -64,13 +40,72 @@ function createEditFormTemplate (event) {
       `;
   });
 
-  const pictures = destinations[destinations.findIndex((item) => item.id === destination)].pictures; //массив фотографий для текущего destination
+  return (`
+    <section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+
+      <div class="event__available-offers">
+        ${availableOffersHtml}
+      </div>
+    </section>
+  `);
+}
+
+
+function createEventSectionDestination (currentDestination) {
+  const pictures = destinations[destinations.findIndex((item) => item.id === currentDestination.id)].pictures; //массив фотографий для текущего destination
   let photosHtml = '';
   pictures.forEach((picture) => {
     photosHtml += `
       <img class="event__photo" src="${picture.src}" alt="${picture.description}">
      `;
   });
+
+  return (`
+    <section class="event__section  event__section--destination">
+      <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+      <p class="event__destination-description">${currentDestination.description}</p>
+      <div class="event__photos-container">
+        <div class="event__photos-tape">
+          ${photosHtml}
+        </div>
+      </div>
+    </section>
+  `);
+}
+
+function createEditFormTemplate (event) {
+  const {basePrice, dateFrom, dateTo, type, destination, offers} = event; //id, isFavorite
+  let eventTypesHtml = '';
+  let currentDestination = {};
+  let destinationsHtml = '';
+
+  EVENT_TYPES.forEach((eventType) => {
+    eventTypesHtml += `
+      <div class="event__type-item">
+        <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${eventType}>
+        <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${capitalizeFirstLetter(eventType)}</label>
+      </div>
+      `;
+  });
+
+  const currentDestinationId = destinations.findIndex((item) => item.id === destination);
+  if (currentDestinationId > -1) {
+    currentDestination = destinations[currentDestinationId];
+    destinationsHtml = `
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestination.name} list="destination-list-1">
+      <datalist id="destination-list-1">
+      `;
+
+    destinations.forEach((destinationItem) => {
+      destinationsHtml += `
+        <option value=${destinationItem.name}></option>
+      `;
+    });
+    destinationsHtml += `
+      </datalist>
+    `;
+  }
 
   return (
     `<li class="trip-events__item">
@@ -121,23 +156,8 @@ function createEditFormTemplate (event) {
           </button>
         </header>
         <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-            <div class="event__available-offers">
-              ${availableOffersHtml}
-            </div>
-          </section>
-
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${currentDestination.description}</p>
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${photosHtml}
-              </div>
-            </div>
-          </section>
+          ${createEventSectionOffers(offers, type)}
+          ${currentDestinationId > -1 ? createEventSectionDestination(currentDestination) : ''}
         </section>
       </form>
     </li>`
