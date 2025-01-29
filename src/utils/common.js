@@ -26,12 +26,8 @@ function capitalizeFirstLetter(str) {
   return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 }
 
-function lastWord(str) {
-  return str.trimRight().split(' ').pop().toLowerCase();
-}
+// function lastWord(str) {
+//   return str.trimRight().split(' ').pop().toLowerCase();
+// }
 
-function updateItem(items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
-}
-
-export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter, lastWord, updateItem};
+export {getRandomArrayElement, getRandomInteger, getRandomDate, formatDate, capitalizeFirstLetter};

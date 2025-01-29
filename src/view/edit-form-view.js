@@ -1,8 +1,8 @@
 //import AbstractView from '../framework/view/abstract-view.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {EVENT_EDIT_DATE_FORMAT} from '../const.js';
+import {EVENT_EDIT_DATE_FORMAT, DEFAULT_EVENT_TYPE} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
-import {formatDate, capitalizeFirstLetter, lastWord} from '../utils/common.js';
+import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
 import {destinations} from '../mock/destinations.js';
 import {allOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
@@ -10,28 +10,27 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
   id: null,
-  dateFrom: null,
-  dateTo: null,
-  type :null,
+  dateFrom: new Date(),
+  dateTo: new Date(),
+  type : DEFAULT_EVENT_TYPE,
   destination: null,
   basePrice: 0,
   offers: null,
   isFavorite: false,
 };
 
-function createEventSectionOffers (offers, type) {
-  const availableOffers = allOffers[allOffers.findIndex((item) => item.type === type)].offers; //массив доступных предложений для кокретного type
+function createEventSectionOffers (event) {
+  const availableOffers = getAvailableOffers(event); //массив доступных offers для кокретного type
   if (availableOffers.length === 0) {
     return '';
   }
   let availableOffersHtml = '';
   availableOffers.forEach((offer) => {
-    const offerShortTitle = lastWord(offer.title);
-    const checked = offers.includes(offer.id) ? 'checked' : '';
+    //const checked = offer.selected ? 'checked' : '';
     availableOffersHtml += `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerShortTitle}-1" type="checkbox" name="event-offer-${offerShortTitle}" ${checked}>
-        <label class="event__offer-label" for="event-offer-${offerShortTitle}-1">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-1" type="checkbox" name="event-offer-${offer.id}" ${offer.selected ? 'checked' : ''}>
+        <label class="event__offer-label" for="event-offer-${offer.id}-1">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${offer.price}</span>
@@ -75,7 +74,10 @@ function createEventSectionDestination (currentDestination) {
 }
 
 function createEditFormTemplate (event) {
-  const {basePrice, dateFrom, dateTo, type, destination, offers} = event; //id, isFavorite
+  const {basePrice, dateFrom, dateTo, type, destination, id} = event; //id, isFavorite , offers
+  const currentDestinationId = destinations.findIndex((item) => item.id === destination);
+
+  let currentDestinationName = '\'\'';
   let eventTypesHtml = '';
   let currentDestination = {};
   let destinationsHtml = '';
@@ -89,23 +91,24 @@ function createEditFormTemplate (event) {
       `;
   });
 
-  const currentDestinationId = destinations.findIndex((item) => item.id === destination);
   if (currentDestinationId > -1) {
     currentDestination = destinations[currentDestinationId];
-    destinationsHtml = `
-      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestination.name} list="destination-list-1">
+    currentDestinationName = currentDestination.name;
+  }
+  destinationsHtml = `
+      <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestinationName} list="destination-list-1">
       <datalist id="destination-list-1">
       `;
 
-    destinations.forEach((destinationItem) => {
-      destinationsHtml += `
+  destinations.forEach((destinationItem) => {
+    destinationsHtml += `
         <option value=${destinationItem.name}></option>
       `;
-    });
-    destinationsHtml += `
+  });
+  destinationsHtml += `
       </datalist>
     `;
-  }
+
 
   return (
     `<li class="trip-events__item">
@@ -150,18 +153,31 @@ function createEditFormTemplate (event) {
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>
         </header>
         <section class="event__details">
-          ${createEventSectionOffers(offers, type)}
+          ${createEventSectionOffers(event)}
           ${currentDestinationId > -1 ? createEventSectionDestination(currentDestination) : ''}
         </section>
       </form>
     </li>`
   );
+}
+
+function getAvailableOffers (event) {
+  let availableOffers = [];
+  //if (event.offers) {
+  availableOffers = allOffers[allOffers.findIndex((item) => item.type === event.type)].offers; //массив доступных offers для кокретного type
+
+  if (event.offers) {
+    availableOffers.forEach((offer) => {
+      offer.selected = event.offers.includes(offer.id);
+    });
+  }
+  return availableOffers;
 }
 
 export default class EditFormView extends AbstractStatefulView {
@@ -198,6 +214,7 @@ export default class EditFormView extends AbstractStatefulView {
     }
 
     this._state.type = evt.target.parentElement.querySelector('.event__type-input').value; //найти в родительском элементе класс event__type-input и взять его value
+    this._state.availableOffers = getAvailableOffers(this._state);
     this.updateElement({
       type: this._state.type,
     });
@@ -219,29 +236,47 @@ export default class EditFormView extends AbstractStatefulView {
     });
   };
 
-  #dateFromChangeHandler = ([selectedDate]) => {
+  #dateFromCloseHandler = ([selectedDate]) => {
     this.updateElement({
       dateFrom: selectedDate,
     });
   };
 
-  #dateToChangeHandler = ([selectedDate]) => {
+  #dateToCloseHandler = ([selectedDate]) => {
     this.updateElement({
       dateTo: selectedDate,
     });
+  };
+
+  #offerHandler = (evt) => {
+    //evt.preventDefault();
+    if (!(evt.target.className.includes('event__offer-label') || evt.target.className.includes('event__offer-title') || evt.target.className.includes('event__offer-price'))) {
+      return;
+    }
+    let labelElement = null;
+    if (evt.target.className.includes('event__offer-label')) {
+      labelElement = evt.target;
+    } else {
+      labelElement = evt.target.parentElement;
+    }
+
+    //for="event-offer-${offer.id}-1"
+    const offerId = labelElement.htmlFor.slice(0, labelElement.htmlFor.length - 2).replace('event-offer-', '');
+    const offerIdIndex = this._state.availableOffers.findIndex((item) => item.id === offerId);
+    this._state.availableOffers[offerIdIndex].selected = !this._state.availableOffers[offerIdIndex].selected;
   };
 
   #setDatepickerFrom() {
     this.#datepicker = flatpickr(
       this.element.querySelector('input[name="event-start-time"]'),
       {
-        enableTime: true,
-        // eslint-disable-next-line camelcase
-        time_24hr: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
         minDate: 'today',
-        onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+        enableTime: true,
+        // eslint-disable-next-line camelcase
+        time_24hr: true,
+        onClose: this.#dateFromCloseHandler, // На событие flatpickr передаём наш колбэк
       },
     );
   }
@@ -250,14 +285,21 @@ export default class EditFormView extends AbstractStatefulView {
     this.#datepicker = flatpickr(
       this.element.querySelector('input[name="event-end-time"]'),
       {
-        enableTime: true,
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateTo,
         minDate: this._state.dateFrom,
-        onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+        enableTime: true,
+        // eslint-disable-next-line camelcase
+        time_24hr: true,
+        onClose: this.#dateToCloseHandler, // На событие flatpickr передаём наш колбэк
       },
     );
   }
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(EditFormView.parseStateToEvent(this._state));
+  };
 
   reset(event) {
     this.updateElement(
@@ -267,22 +309,41 @@ export default class EditFormView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
+    if (this.#event.destination) {
+      this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
+    }
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    if (this._state.availableOffers.length > 0) {
+      this.element.querySelector('.event__available-offers').addEventListener('click', this.#offerHandler);
+    }
     this.#setDatepickerFrom();
     this.#setDatepickerTo();
   };
 
   static parseEventToState(event) {
+    const availableOffers = getAvailableOffers(event);
+
     return {...event,
-      // isDueDate: task.dueDate !== null,
-      // isRepeating: isTaskRepeating(task.repeating),
+      availableOffers: availableOffers,
     };
   }
 
   static parseStateToEvent(state) {
     const event = {...state};
+    if (event.offers.length) {
+      event.offers.length = 0; //очищаем массив offers для event
+    }
+    //переносим выбранные offers (id) в свойство (массив) event.offers
+    event.availableOffers.forEach((offer) => {
+      if (offer.selected) {
+        event.offers.push(offer.id);
+      }
+    });
+
+    delete event.availableOffers;
+
     return event;
   }
 }
