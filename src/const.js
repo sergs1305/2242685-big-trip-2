@@ -6,6 +6,15 @@ const EVENT_VIEW_DAY_FORMAT = 'MMM DD'; //'MAR 18' (месяц - прописн�
 const EVENT_VIEW_TIME_FORMAT = 'HH:mm'; //'14:30'
 const EVENT_VIEW_DURATION_TIME_FORMAT = 'HH[H] mm[M]'; //'01H 35M'
 const SHOW_EVENTS_COUNT = 5;
+const DEFAULT_EVENT_TYPE = 'flight';
+
+const SortTypeName = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer',
+};
 
 const SortType = [
   {name: 'day', isDisabled: false},
@@ -14,13 +23,40 @@ const SortType = [
   {name: 'price', isDisabled: false},
   {name: 'offer', isDisabled: true},
 ];
+const defaultSortIndex = 0; // сортировка по умолчанию
 
-// const SortType = {
-//   DAY: 'day',
-//   EVENT: 'event',
-//   TIME: 'time',
-//   PRICE: 'price',
-//   OFFER: 'offer',
-// };
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
 
-export {CURRENT_DATE, DATA_DATE_FORMAT, EVENT_EDIT_DATE_FORMAT, EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT, EVENT_VIEW_DURATION_TIME_FORMAT, SHOW_EVENTS_COUNT, SortType};
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+export {
+  CURRENT_DATE,
+  DATA_DATE_FORMAT,
+  EVENT_EDIT_DATE_FORMAT,
+  EVENT_VIEW_DATE_FORMAT,
+  EVENT_VIEW_DAY_FORMAT,
+  EVENT_VIEW_TIME_FORMAT,
+  EVENT_VIEW_DURATION_TIME_FORMAT,
+  SHOW_EVENTS_COUNT,
+  SortType,
+  SortTypeName,
+  defaultSortIndex,
+  FilterType,
+  UserAction,
+  UpdateType,
+  DEFAULT_EVENT_TYPE,
+};

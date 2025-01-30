@@ -1,6 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
 import EventView from '../view/event-view.js';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -41,7 +42,7 @@ export default class EventPresenter {
       event: this.#event,
       onFormSubmit: this.#handleFormSubmit,
       onFormCancel: this.#handleFormCancel,
-      onDeleteClick: this.#handleFormDelete,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {
@@ -76,23 +77,25 @@ export default class EventPresenter {
     }
   }
 
-  #handleFormSubmit = (update) => { //(update)
-    this.#replaceFormToCard();
-    this.#handleDataChange(update);
+  #handleFormSubmit = (update) => {
     // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
     // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    //const isMinorUpdate =
-    // !isDatesEqual(this.#task.dueDate, update.dueDate) ||
-    // isTaskRepeating(this.#task.repeating) !== isTaskRepeating(update.repeating);
+    const isMinorUpdate = this.#event.dateFrom !== update.dateFrom;
 
-    // this.#handleDataChange(
-    //   UserAction.UPDATE_TASK,
-    //   isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
-    //   update,
-    //);
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
+    this.#replaceFormToCard();
   };
 
-  #handleFormDelete = () => {
+  #handleDeleteClick = (event) => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      event,
+    );
   };
 
   #escKeyDownHandler = (evt) => {
@@ -108,7 +111,11 @@ export default class EventPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#event, isFavorite: !this.#event.isFavorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {...this.#event, isFavorite: !this.#event.isFavorite},
+    );
   };
 
   #replaceCardToForm() {
