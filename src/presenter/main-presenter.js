@@ -16,7 +16,6 @@ export default class MainPresenter {
   #sortComponent = null;
   #currentSortType = SortType[defaultSortIndex].name;
   #listViewComponent = new ListView();
-  //#listViewComponent = null;
   #noEventsComponent = null;
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;

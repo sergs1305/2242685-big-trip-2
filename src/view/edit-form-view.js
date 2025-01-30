@@ -13,9 +13,9 @@ const BLANK_EVENT = {
   dateFrom: new Date(),
   dateTo: new Date(),
   type : DEFAULT_EVENT_TYPE,
-  destination: null,
+  destination: '',
   basePrice: 0,
-  offers: null,
+  offers: [],
   isFavorite: false,
 };
 
@@ -309,9 +309,9 @@ export default class EditFormView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    if (this.#event.destination) {
-      this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
-    }
+    //if (this.#event.destination) {
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
+    //}
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
@@ -332,9 +332,8 @@ export default class EditFormView extends AbstractStatefulView {
 
   static parseStateToEvent(state) {
     const event = {...state};
-    if (event.offers.length) {
-      event.offers.length = 0; //очищаем массив offers для event
-    }
+    event.offers = [];
+    event.offers.length = 0; //очищаем массив offers для event
     //переносим выбранные offers (id) в свойство (массив) event.offers
     event.availableOffers.forEach((offer) => {
       if (offer.selected) {

@@ -1,7 +1,8 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
-import {nanoid} from 'nanoid';
+//import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
+import {getNewId} from '../utils/event.js';
 
 export default class NewEventPresenter {
   #eventListContainer = null;
@@ -43,7 +44,7 @@ export default class NewEventPresenter {
       UpdateType.MINOR,
       // Пока у нас нет сервера, который бы после сохранения
       // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: nanoid(), ...event},
+      {id: getNewId(), ...event},
     );
     this.destroy();
   };
