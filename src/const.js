@@ -8,6 +8,14 @@ const EVENT_VIEW_DURATION_TIME_FORMAT = 'HH[H] mm[M]'; //'01H 35M'
 const SHOW_EVENTS_COUNT = 5;
 const DEFAULT_EVENT_TYPE = 'flight';
 
+const SortTypeName = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer',
+};
+
 const SortType = [
   {name: 'day', isDisabled: false},
   {name: 'event', isDisabled: true},
@@ -23,13 +31,6 @@ const FilterType = {
   PRESENT: 'present',
   PAST: 'past',
 };
-// const SortType = {
-//   DAY: 'day',
-//   EVENT: 'event',
-//   TIME: 'time',
-//   PRICE: 'price',
-//   OFFER: 'offer',
-// };
 
 const UserAction = {
   UPDATE_EVENT: 'UPDATE_EVENT',
@@ -52,6 +53,7 @@ export {
   EVENT_VIEW_DURATION_TIME_FORMAT,
   SHOW_EVENTS_COUNT,
   SortType,
+  SortTypeName,
   defaultSortIndex,
   FilterType,
   UserAction,

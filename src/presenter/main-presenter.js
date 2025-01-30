@@ -4,7 +4,7 @@ import ListView from '../view/list-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import {SortType, defaultSortIndex, UpdateType, UserAction, FilterType} from '../const.js';
+import {SortType, SortTypeName, defaultSortIndex, UpdateType, UserAction, FilterType} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 import {filter} from '../utils/filter.js';
 
@@ -41,11 +41,11 @@ export default class MainPresenter {
     const filteredEvents = filter[this.#filterType](events);
 
     switch (this.#currentSortType) {
-      case 'day':
+      case SortTypeName.DAY:
         return filteredEvents.sort(sortByDay);
-      case 'time':
+      case SortTypeName.TIME:
         return filteredEvents.sort(sortByTime);
-      case 'price':
+      case SortTypeName.PRICE:
         return filteredEvents.sort(sortByPrice);
     }
     return filteredEvents;
@@ -86,15 +86,25 @@ export default class MainPresenter {
 
 
   #renderEvents = (events) => {
-    for (let i = 0; i < events.length; i++) {
+    events.forEach ((event) => {
       const eventPresenter = new EventPresenter({
         listViewComponent: this.#listViewComponent,
         onDataChange: this.#handleViewAction,
         onModeChange: this.#handleModeChange,
       });
-      eventPresenter.init(events[i]);
-      this.#eventPresenters.set(events[i].id, eventPresenter);
-    }
+      eventPresenter.init(event);
+      this.#eventPresenters.set(event.id, eventPresenter);
+    });
+
+    // for (let i = 0; i < events.length; i++) {
+    //   const eventPresenter = new EventPresenter({
+    //     listViewComponent: this.#listViewComponent,
+    //     onDataChange: this.#handleViewAction,
+    //     onModeChange: this.#handleModeChange,
+    //   });
+    //   eventPresenter.init(events[i]);
+    //   this.#eventPresenters.set(events[i].id, eventPresenter);
+    // }
   };
 
   #clearBoard({resetSortType = false} = {}) {

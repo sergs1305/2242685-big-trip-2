@@ -19,7 +19,7 @@ const BLANK_EVENT = {
   isFavorite: false,
 };
 
-function createEventSectionOffers (event) {
+function createEventSectionOffersTemplate (event) {
   const availableOffers = getAvailableOffers(event); //массив доступных offers для кокретного type
   if (availableOffers.length === 0) {
     return '';
@@ -78,12 +78,12 @@ function createEditFormTemplate (event) {
   const currentDestinationId = destinations.findIndex((item) => item.id === destination);
 
   let currentDestinationName = '\'\'';
-  let eventTypesHtml = '';
+  let eventTypesTemplate = '';
   let currentDestination = {};
-  let destinationsHtml = '';
+  let destinationsTemplate = '';
 
   EVENT_TYPES.forEach((eventType) => {
-    eventTypesHtml += `
+    eventTypesTemplate += `
       <div class="event__type-item">
         <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${eventType}>
         <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${capitalizeFirstLetter(eventType)}</label>
@@ -95,17 +95,17 @@ function createEditFormTemplate (event) {
     currentDestination = destinations[currentDestinationId];
     currentDestinationName = currentDestination.name;
   }
-  destinationsHtml = `
+  destinationsTemplate = `
       <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestinationName} list="destination-list-1">
       <datalist id="destination-list-1">
       `;
 
   destinations.forEach((destinationItem) => {
-    destinationsHtml += `
+    destinationsTemplate += `
         <option value=${destinationItem.name}></option>
       `;
   });
-  destinationsHtml += `
+  destinationsTemplate += `
       </datalist>
     `;
 
@@ -124,7 +124,7 @@ function createEditFormTemplate (event) {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Event type</legend>
-                ${eventTypesHtml}
+                ${eventTypesTemplate}
               </fieldset>
             </div>
           </div>
@@ -133,7 +133,7 @@ function createEditFormTemplate (event) {
             <label class="event__label  event__type-output" for="event-destination-1">
               ${capitalizeFirstLetter(type)}
             </label>
-            ${destinationsHtml}
+            ${destinationsTemplate}
           </div>
 
           <div class="event__field-group  event__field-group--time">
@@ -159,7 +159,7 @@ function createEditFormTemplate (event) {
           </button>
         </header>
         <section class="event__details">
-          ${createEventSectionOffers(event)}
+          ${createEventSectionOffersTemplate(event)}
           ${currentDestinationId > -1 ? createEventSectionDestination(currentDestination) : ''}
         </section>
       </form>
@@ -274,8 +274,7 @@ export default class EditFormView extends AbstractStatefulView {
         defaultDate: this._state.dateFrom,
         minDate: 'today',
         enableTime: true,
-        // eslint-disable-next-line camelcase
-        time_24hr: true,
+        'time_24hr': true,
         onClose: this.#dateFromCloseHandler, // На событие flatpickr передаём наш колбэк
       },
     );
@@ -333,7 +332,7 @@ export default class EditFormView extends AbstractStatefulView {
   static parseStateToEvent(state) {
     const event = {...state};
     event.offers = [];
-    event.offers.length = 0; //очищаем массив offers для event
+    //event.offers.length = 0; //очищаем массив offers для event
     //переносим выбранные offers (id) в свойство (массив) event.offers
     event.availableOffers.forEach((offer) => {
       if (offer.selected) {
