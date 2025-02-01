@@ -3,8 +3,8 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {EVENT_EDIT_DATE_FORMAT, DEFAULT_EVENT_TYPE} from '../const.js';
 import {EVENT_TYPES} from '../mock/const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
-import {destinations} from '../mock/destinations.js';
-import {allOffers} from '../mock/offers.js';
+//import {destinations} from '../mock/destinations.js';
+//import {allOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -19,8 +19,8 @@ const BLANK_EVENT = {
   isFavorite: false,
 };
 
-function createEventSectionOffersTemplate (event) {
-  const availableOffers = getAvailableOffers(event); //массив доступных offers для кокретного type
+function createEventSectionOffersTemplate (event, allOffers) {
+  const availableOffers = getAvailableOffers(event, allOffers); //массив доступных offers для кокретного type
   if (availableOffers.length === 0) {
     return '';
   }
@@ -51,7 +51,7 @@ function createEventSectionOffersTemplate (event) {
 }
 
 
-function createEventSectionDestination (currentDestination) {
+function createEventSectionDestination (currentDestination, destinations) {
   const pictures = destinations[destinations.findIndex((item) => item.id === currentDestination.id)].pictures; //массив фотографий для текущего destination
   let photosHtml = '';
   pictures.forEach((picture) => {
@@ -73,7 +73,7 @@ function createEventSectionDestination (currentDestination) {
   `);
 }
 
-function createEditFormTemplate (event) {
+function createEditFormTemplate (event, destinations, allOffers) {
   const {basePrice, dateFrom, dateTo, type, destination, id} = event; //id, isFavorite , offers
   const currentDestinationId = destinations.findIndex((item) => item.id === destination);
 
@@ -159,15 +159,15 @@ function createEditFormTemplate (event) {
           </button>
         </header>
         <section class="event__details">
-          ${createEventSectionOffersTemplate(event)}
-          ${currentDestinationId > -1 ? createEventSectionDestination(currentDestination) : ''}
+          ${createEventSectionOffersTemplate(event, allOffers)}
+          ${currentDestinationId > -1 ? createEventSectionDestination(currentDestination, destinations) : ''}
         </section>
       </form>
     </li>`
   );
 }
 
-function getAvailableOffers (event) {
+function getAvailableOffers (event, allOffers) {
   let availableOffers = [];
   //if (event.offers) {
   availableOffers = allOffers[allOffers.findIndex((item) => item.type === event.type)].offers; //массив доступных offers для кокретного type
@@ -184,21 +184,25 @@ export default class EditFormView extends AbstractStatefulView {
   #handleFormSubmit = null;
   #handleFormCancel = null;
   #handleDeleteClick = null;
+  #destinations = [];
+  #allOffers = [];
   #event = null;
   #datepicker = null;
 
-  constructor({event = BLANK_EVENT, onFormSubmit, onFormCancel, onDeleteClick}) {
+  constructor({event = BLANK_EVENT, onFormSubmit, onFormCancel, onDeleteClick, destinations, allOffers}) {
     super();
     this.#event = event;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormCancel = onFormCancel;
     this.#handleDeleteClick = onDeleteClick;
-    this._setState(EditFormView.parseEventToState(event));
+    this.#destinations = destinations;
+    this.#allOffers = allOffers;
+    this._setState(EditFormView.parseEventToState(event, allOffers));
     this._restoreHandlers();
   }
 
   get template() {
-    return createEditFormTemplate(this._state);
+    return createEditFormTemplate(this._state, this.#destinations, this.#allOffers);
   }
 
   //removeElement()?
@@ -216,7 +220,7 @@ export default class EditFormView extends AbstractStatefulView {
     }
 
     this._state.type = evt.target.parentElement.querySelector('.event__type-input').value; //найти в родительском элементе класс event__type-input и взять его value
-    this._state.availableOffers = getAvailableOffers(this._state);
+    this._state.availableOffers = getAvailableOffers(this._state, this.#allOffers);
     this.updateElement({
       type: this._state.type,
     });
@@ -226,13 +230,13 @@ export default class EditFormView extends AbstractStatefulView {
   #destinationHandler = (evt) => {
     evt.preventDefault();
 
-    const selectedDestinationIndex = destinations.findIndex((item) => item.name === evt.target.value);
+    const selectedDestinationIndex = this.#destinations.findIndex((item) => item.name === evt.target.value);
 
     if (selectedDestinationIndex === -1) {
       return;
     }
 
-    this._state.destination = destinations[selectedDestinationIndex].id;
+    this._state.destination = this.#destinations[selectedDestinationIndex].id;
     this.updateElement({
       destination: this._state.destination,
     });
@@ -304,7 +308,7 @@ export default class EditFormView extends AbstractStatefulView {
 
   reset(event) {
     this.updateElement(
-      EditFormView.parseEventToState(event),
+      EditFormView.parseEventToState(event, this.#allOffers),
     );
   }
 
@@ -323,8 +327,8 @@ export default class EditFormView extends AbstractStatefulView {
     this.#setDatepickerTo();
   };
 
-  static parseEventToState(event) {
-    const availableOffers = getAvailableOffers(event);
+  static parseEventToState(event, allOffers) {
+    const availableOffers = getAvailableOffers(event, allOffers);
 
     return {...event,
       availableOffers: availableOffers,

@@ -9,11 +9,15 @@ export default class NewEventPresenter {
   #handleDataChange = null;
   #handleDestroy = null;
   #eventEditComponent = null;
+  #destinations = [];
+  #allOffers = [];
 
-  constructor({eventListContainer, onDataChange, onDestroy}) {
+  constructor({eventListContainer, onDataChange, onDestroy, destinations, allOffers}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
+    this.#destinations = destinations;
+    this.#allOffers = allOffers;
   }
 
   init() {
@@ -22,7 +26,9 @@ export default class NewEventPresenter {
     }
     this.#eventEditComponent = new EditFormView({
       onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick
+      onDeleteClick: this.#handleDeleteClick,
+      destinations: this.#destinations,
+      allOffers: this.#allOffers,
     });
     render(this.#eventEditComponent, this.#eventListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);

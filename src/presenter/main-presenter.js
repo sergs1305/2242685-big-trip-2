@@ -31,7 +31,9 @@ export default class MainPresenter {
     this.#newEventPresenter = new NewEventPresenter({
       eventListContainer: this.#listViewComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: onNewEventDestroy
+      onDestroy: onNewEventDestroy,
+      destinations: this.#eventsModel.destinations,
+      allOffers: this.#eventsModel.offers,
     });
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
@@ -98,20 +100,12 @@ export default class MainPresenter {
         listViewComponent: this.#listViewComponent,
         onDataChange: this.#handleViewAction,
         onModeChange: this.#handleModeChange,
+        destinations: this.#eventsModel.destinations,
+        allOffers: this.#eventsModel.offers,
       });
       eventPresenter.init(event);
       this.#eventPresenters.set(event.id, eventPresenter);
     });
-
-    // for (let i = 0; i < events.length; i++) {
-    //   const eventPresenter = new EventPresenter({
-    //     listViewComponent: this.#listViewComponent,
-    //     onDataChange: this.#handleViewAction,
-    //     onModeChange: this.#handleModeChange,
-    //   });
-    //   eventPresenter.init(events[i]);
-    //   this.#eventPresenters.set(events[i].id, eventPresenter);
-    // }
   };
 
   #clearBoard({resetSortType = false} = {}) {

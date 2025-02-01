@@ -1,12 +1,12 @@
 import Observable from '../framework/observable.js';
-//import {mockEvents} from '../mock/event.js';
 //import {SHOW_EVENTS_COUNT} from '../const.js';
 import {UpdateType} from '../const.js';
 
 export default class EventsModel extends Observable {
   #eventsApiService = null;
-  //#events = mockEvents;
   #events = [];
+  #destinations = [];
+  #offers = [];
 
   constructor({eventsApiService}) {
     super();
@@ -20,12 +20,34 @@ export default class EventsModel extends Observable {
     return this.#events;
   }
 
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
   async init() {
     try {
       const events = await this.#eventsApiService.events;
       this.#events = events.map(this.#adaptToClient);
     } catch(err) {
       this.#events = [];
+    }
+
+    try {
+      const destinations = await this.#eventsApiService.destinations;
+      this.#destinations = destinations;
+    } catch(err) {
+      this.#destinations = [];
+    }
+
+    try {
+      const offers = await this.#eventsApiService.offers;
+      this.#offers = offers;
+    } catch(err) {
+      this.#offers = [];
     }
 
     this._notify(UpdateType.INIT);
@@ -48,12 +70,6 @@ export default class EventsModel extends Observable {
     } catch(err) {
       throw new Error('Can\'t update event');
     }
-    // this.#events = [
-    //   ...this.#events.slice(0, index),
-    //   update,
-    //   ...this.#events.slice(index + 1),
-    // ];
-    // this._notify(updateType, update);
   }
 
   addEvent(updateType, update) {
