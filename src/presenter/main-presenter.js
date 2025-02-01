@@ -7,6 +7,7 @@ import NewEventPresenter from './new-event-presenter.js';
 import {SortType, SortTypeName, defaultSortIndex, UpdateType, UserAction, FilterType} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 import {filter} from '../utils/filter.js';
+import LoadingView from '../view/loading-view.js';
 
 export default class MainPresenter {
   #boardContainer = null;
@@ -16,9 +17,11 @@ export default class MainPresenter {
   #sortComponent = null;
   #currentSortType = SortType[defaultSortIndex].name;
   #listViewComponent = new ListView();
+  #loadingComponent = new LoadingView();
   #noEventsComponent = null;
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   constructor ({boardContainer, eventsModel, filterModel, onNewEventDestroy}) {
     this.#boardContainer = boardContainer;
@@ -62,6 +65,11 @@ export default class MainPresenter {
   }
 
   #renderBoard () {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
     const events = this.events;
     const eventsCount = events.length;
 
@@ -83,7 +91,6 @@ export default class MainPresenter {
     this.#noEventsComponent = new ListEmptyView({filterType: this.#filterType});
     render(this.#noEventsComponent, this.#boardContainer);
   }
-
 
   #renderEvents = (events) => {
     events.forEach ((event) => {
@@ -111,7 +118,9 @@ export default class MainPresenter {
     this.#newEventPresenter.destroy();
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
+
     remove(this.#sortComponent);
+    remove(this.#loadingComponent);
 
     if (this.#noEventsComponent) {
       remove(this.#noEventsComponent);
@@ -151,6 +160,11 @@ export default class MainPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -175,5 +189,9 @@ export default class MainPresenter {
       onSortTypeChange: this.#handleSortTypeChange
     });
     render(this.#sortComponent, this.#boardContainer); //RenderPosition.AFTERBEGIN
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#boardContainer); // .element RenderPosition.AFTERBEGIN
   }
 }

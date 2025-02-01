@@ -201,6 +201,8 @@ export default class EditFormView extends AbstractStatefulView {
     return createEditFormTemplate(this._state);
   }
 
+  //removeElement()?
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
