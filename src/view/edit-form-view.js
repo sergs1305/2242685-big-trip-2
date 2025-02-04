@@ -46,6 +46,11 @@ function createEventSectionOffersTemplate (event, allOffers) {
 
 
 function createEventSectionDestination (currentDestination, destinations) {
+  //если у currentDestination нет описания (description) и фотографий, не отрисовываем
+  if (currentDestination.description === '' && currentDestination.pictures.length === 0) {
+    return '';
+  }
+
   const pictures = destinations[destinations.findIndex((item) => item.id === currentDestination.id)].pictures; //массив фотографий для текущего destination
   let photosHtml = '';
   pictures.forEach((picture) => {
