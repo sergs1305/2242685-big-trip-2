@@ -16,12 +16,16 @@ export default class EventPresenter {
   #eventEditComponent = null;
   #handleModeChange = null;
   #mode = Mode.DEFAULT;
+  #destinations = [];
+  #allOffers = [];
 
-  constructor ({listViewComponent, onDataChange, onModeChange}) {
+  constructor ({listViewComponent, onDataChange, onModeChange, destinations, allOffers}) {
     //this.#event = event;
     this.#listViewComponent = listViewComponent;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
+    this.#destinations = destinations;
+    this.#allOffers = allOffers;
   }
 
   init(event) {
@@ -34,15 +38,19 @@ export default class EventPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
       onEditBtnClick: () => {
         this.#replaceCardToForm();
-        // const eventRollupBtn = this.querySelector('.event__rollup-btn');
-        // eventRollupBtn.addEventListener('click', this.#eventRollupBtnHandler);
       },
+      destinations: this.#destinations,
+      allOffers: this.#allOffers,
+
     });
+
     this.#eventEditComponent = new EditFormView({
       event: this.#event,
       onFormSubmit: this.#handleFormSubmit,
       onFormCancel: this.#handleFormCancel,
       onDeleteClick: this.#handleDeleteClick,
+      destinations: this.#destinations,
+      allOffers: this.#allOffers,
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {

@@ -1,19 +1,23 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
-//import {nanoid} from 'nanoid';
+import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
-import {getNewId} from '../utils/event.js';
+//import {getNewId} from '../utils/event.js';
 
 export default class NewEventPresenter {
   #eventListContainer = null;
   #handleDataChange = null;
   #handleDestroy = null;
   #eventEditComponent = null;
+  #destinations = [];
+  #allOffers = [];
 
-  constructor({eventListContainer, onDataChange, onDestroy}) {
+  constructor({eventListContainer, onDataChange, onDestroy, destinations, allOffers}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
+    this.#destinations = destinations;
+    this.#allOffers = allOffers;
   }
 
   init() {
@@ -22,7 +26,9 @@ export default class NewEventPresenter {
     }
     this.#eventEditComponent = new EditFormView({
       onFormSubmit: this.#handleFormSubmit,
-      onDeleteClick: this.#handleDeleteClick
+      onDeleteClick: this.#handleDeleteClick,
+      destinations: this.#destinations,
+      allOffers: this.#allOffers,
     });
     render(this.#eventEditComponent, this.#eventListContainer, RenderPosition.AFTERBEGIN);
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -44,7 +50,7 @@ export default class NewEventPresenter {
       UpdateType.MINOR,
       // Пока у нас нет сервера, который бы после сохранения
       // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: getNewId(), ...event},
+      {id: nanoid(), ...event},
     );
     this.destroy();
   };

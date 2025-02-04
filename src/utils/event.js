@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {mockEvents} from '../mock/event.js';
+//import {mockEvents} from '../mock/event.js';
 
 function sortByDay(eventA, eventB) {
   return dayjs(eventA.dateFrom).diff(dayjs(eventB.dateFrom));
@@ -14,14 +14,14 @@ function sortByPrice (eventA, eventB) {
 }
 
 // получение уникального event.id вида 'e<num>'
-function getNewId () {
-  let maxIdNum = 0;
+// function getNewId () {
+//   let maxIdNum = 0;
 
-  mockEvents.forEach((event) => {
-    maxIdNum = Math.max(maxIdNum, Number(event.id.slice(1)));
-  });
+//   mockEvents.forEach((event) => {
+//     maxIdNum = Math.max(maxIdNum, Number(event.id.slice(1)));
+//   });
 
-  return String(maxIdNum + 1);
-}
+//   return String(maxIdNum + 1);
+// }
 
-export {sortByDay, sortByTime, sortByPrice, getNewId};
+export {sortByDay, sortByTime, sortByPrice};

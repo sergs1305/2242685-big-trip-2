@@ -1,17 +1,17 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
-import {destinations} from '../mock/destinations.js';
-import {allOffers} from '../mock/offers.js';
+// import {destinations} from '../mock/destinations.js';
+// import {allOffers} from '../mock/offers.js';
 import dayjs from 'dayjs';
 
-function getOfferById (type, offerId) {
+function getOfferById (type, offerId, allOffers) {
   const offersByType = allOffers[allOffers.findIndex((item) => item.type === type)].offers; //массив предложений для конкретного type
   const offerIndex = offersByType.findIndex((item) => item.id === offerId);
   return offerIndex > -1 ? offersByType[offerIndex] : '';
 }
 
-function createEventTemplate(event) {
+function createEventTemplate(event, destinations, allOffers) {
   //console.log(event);
   const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
@@ -30,9 +30,9 @@ function createEventTemplate(event) {
   selectedOffers.forEach((offerId) => {
     selectedOffersTemplate += `
       <li class="event__offer">
-        <span class="event__offer-title">${getOfferById(type, offerId).title}</span>
+        <span class="event__offer-title">${getOfferById(type, offerId, allOffers).title}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${getOfferById(type, offerId).price}</span>
+        <span class="event__offer-price">${getOfferById(type, offerId, allOffers).price}</span>
       </li>
     `;
   });
@@ -80,12 +80,16 @@ export default class EventView extends AbstractView {
   #onFavoriteClick = null;
   #onEditBtnClick = null;
   #event = null;
+  #destinations = [];
+  #allOffers = [];
 
-  constructor({event, onFavoriteClick, onEditBtnClick}) {
+  constructor({event, onFavoriteClick, onEditBtnClick, destinations, allOffers}) {
     super();
     this.#event = event;
     this.#onFavoriteClick = onFavoriteClick;
     this.#onEditBtnClick = onEditBtnClick;
+    this.#destinations = destinations;
+    this.#allOffers = allOffers;
     this.init();
   }
 
@@ -95,7 +99,7 @@ export default class EventView extends AbstractView {
   }
 
   get template() {
-    return createEventTemplate(this.#event);
+    return createEventTemplate(this.#event, this.#destinations, this.#allOffers);
   }
 
   #favoriteClickHandler = (evt) => {
