@@ -47,8 +47,6 @@ function handleNewEventButtonClick() {
 
 render(new TripInfoView(), tripMainElement, 'AFTERBEGIN');
 
-//render(newEventButtonComponent, tripMainElement);
-
 filterPresenter.init();
 mainPresenter.init();
 eventsModel.init().finally(() => {

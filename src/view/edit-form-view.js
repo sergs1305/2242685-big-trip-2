@@ -1,17 +1,12 @@
-//import AbstractView from '../framework/view/abstract-view.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {EVENT_EDIT_DATE_FORMAT, DEFAULT_EVENT_TYPE} from '../const.js';
-import {EVENT_TYPES} from '../mock/const.js';
+import {EVENT_EDIT_DATE_FORMAT, DEFAULT_EVENT_TYPE, EVENT_TYPES} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
-//import {destinations} from '../mock/destinations.js';
-//import {allOffers} from '../mock/offers.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
-  id: null,
-  dateFrom: new Date(),
-  dateTo: new Date(),
+  dateFrom: null, // new Date()
+  dateTo: null, //new Date()
   type : DEFAULT_EVENT_TYPE,
   destination: '',
   basePrice: 0,
@@ -26,10 +21,9 @@ function createEventSectionOffersTemplate (event, allOffers) {
   }
   let availableOffersHtml = '';
   availableOffers.forEach((offer) => {
-    //const checked = offer.selected ? 'checked' : '';
     availableOffersHtml += `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-1" type="checkbox" name="event-offer-${offer.id}" ${offer.selected ? 'checked' : ''}>
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}-1" type="checkbox" name="event-offer-${offer.id}" ${offer.selected ? 'checked' : ''} ${event.isDisabled ? 'disabled' : ''}>
         <label class="event__offer-label" for="event-offer-${offer.id}-1">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -85,7 +79,7 @@ function createEditFormTemplate (event, destinations, allOffers) {
   EVENT_TYPES.forEach((eventType) => {
     eventTypesTemplate += `
       <div class="event__type-item">
-        <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${eventType}>
+        <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value=${eventType} ${event.isDisabled ? 'disabled' : ''}>
         <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${capitalizeFirstLetter(eventType)}</label>
       </div>
       `;
@@ -97,7 +91,7 @@ function createEditFormTemplate (event, destinations, allOffers) {
   }
   destinationsTemplate = `
       <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${currentDestinationName} list="destination-list-1">
-      <datalist id="destination-list-1">
+      <datalist id="destination-list-1" ${event.isDisabled ? 'disabled' : ''}>
       `;
 
   destinations.forEach((destinationItem) => {
@@ -108,7 +102,9 @@ function createEditFormTemplate (event, destinations, allOffers) {
   destinationsTemplate += `
       </datalist>
     `;
-
+  const deleteBtnText = event.isDeleting ? 'Deleting...' : 'Delete';
+  const dateFromValue = id ? formatDate(dateFrom, EVENT_EDIT_DATE_FORMAT) : '';
+  const dateToValue = id ? formatDate(dateTo, EVENT_EDIT_DATE_FORMAT) : '';
 
   return (
     `<li class="trip-events__item">
@@ -138,10 +134,10 @@ function createEditFormTemplate (event, destinations, allOffers) {
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${formatDate(dateFrom, EVENT_EDIT_DATE_FORMAT)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFromValue}" ${event.isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${formatDate(dateTo, EVENT_EDIT_DATE_FORMAT)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateToValue}" ${event.isDisabled ? 'disabled' : ''}>
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -149,11 +145,11 @@ function createEditFormTemplate (event, destinations, allOffers) {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" pattern="\\d+" title="Positive integers only" name="event-price" value="${basePrice}" ${event.isDisabled ? 'disabled' : ''}>
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${event.isDisabled ? 'disabled' : ''}>${event.isSaving ? 'Saving...' : 'Save'}</button>
+          <button class="event__reset-btn" type="reset" ${event.isDisabled ? 'disabled' : ''}>${id ? deleteBtnText : 'Cancel'}</button>
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>
@@ -255,7 +251,6 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #offerHandler = (evt) => {
-    //evt.preventDefault();
     if (!(evt.target.className.includes('event__offer-label') || evt.target.className.includes('event__offer-title') || evt.target.className.includes('event__offer-price'))) {
       return;
     }
@@ -266,7 +261,6 @@ export default class EditFormView extends AbstractStatefulView {
       labelElement = evt.target.parentElement;
     }
 
-    //for="event-offer-${offer.id}-1"
     const offerId = labelElement.htmlFor.slice(0, labelElement.htmlFor.length - 2).replace('event-offer-', '');
     const offerIdIndex = this._state.availableOffers.findIndex((item) => item.id === offerId);
     this._state.availableOffers[offerIdIndex].selected = !this._state.availableOffers[offerIdIndex].selected;
@@ -278,7 +272,7 @@ export default class EditFormView extends AbstractStatefulView {
       {
         dateFormat: 'd/m/y H:i',
         defaultDate: this._state.dateFrom,
-        minDate: 'today',
+        maxDate: this._state.dateTo,
         enableTime: true,
         'time_24hr': true,
         onClose: this.#dateFromCloseHandler, // На событие flatpickr передаём наш колбэк
@@ -294,12 +288,16 @@ export default class EditFormView extends AbstractStatefulView {
         defaultDate: this._state.dateTo,
         minDate: this._state.dateFrom,
         enableTime: true,
-        // eslint-disable-next-line camelcase
-        time_24hr: true,
+        'time_24hr': true,
         onClose: this.#dateToCloseHandler, // На событие flatpickr передаём наш колбэк
       },
     );
   }
+
+  #priceChangeHandler = () => {
+    const priceElement = this.element.querySelector('#event-price-1');
+    this._state.basePrice = Number(priceElement.value);
+  };
 
   #formDeleteClickHandler = (evt) => {
     evt.preventDefault();
@@ -314,9 +312,8 @@ export default class EditFormView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    //if (this.#event.destination) {
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
-    //}
+    this.element.querySelector('#event-price-1').addEventListener('change', this.#priceChangeHandler);
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
@@ -332,13 +329,15 @@ export default class EditFormView extends AbstractStatefulView {
 
     return {...event,
       availableOffers: availableOffers,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     };
   }
 
   static parseStateToEvent(state) {
     const event = {...state};
     event.offers = [];
-    //event.offers.length = 0; //очищаем массив offers для event
     //переносим выбранные offers (id) в свойство (массив) event.offers
     event.availableOffers.forEach((offer) => {
       if (offer.selected) {
@@ -347,6 +346,9 @@ export default class EditFormView extends AbstractStatefulView {
     });
 
     delete event.availableOffers;
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
     return event;
   }

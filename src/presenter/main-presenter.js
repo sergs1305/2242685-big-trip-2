@@ -1,13 +1,19 @@
 import {render, remove} from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import SortView from '../view/sort-view.js';
 import ListView from '../view/list-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import {SortType, SortTypeName, defaultSortIndex, UpdateType, UserAction, FilterType} from '../const.js';
+import {SortType, SortTypeName, DEFAULT_SORT_INDEX, UpdateType, UserAction, FilterType, BoardMessage} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 import {filter} from '../utils/filter.js';
-import LoadingView from '../view/loading-view.js';
+import BoardMessageView from '../view/board-message-view.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class MainPresenter {
   #boardContainer = null;
@@ -15,26 +21,34 @@ export default class MainPresenter {
   #eventPresenters = new Map();
   #newEventPresenter = null;
   #sortComponent = null;
-  #currentSortType = SortType[defaultSortIndex].name;
+  #currentSortType = SortType[DEFAULT_SORT_INDEX].name;
   #listViewComponent = new ListView();
-  #loadingComponent = new LoadingView();
+  #loadingComponent = new BoardMessageView(BoardMessage.LOADING);
+  #failedLoadingComponent = new BoardMessageView(BoardMessage.FAILED);
   #noEventsComponent = null;
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
+  #isFailedLoad = false;
+  #onNewEventDestroy = null;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor ({boardContainer, eventsModel, filterModel, onNewEventDestroy}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
+    this.#onNewEventDestroy = onNewEventDestroy;
 
-    this.#newEventPresenter = new NewEventPresenter({
-      eventListContainer: this.#listViewComponent.element,
-      onDataChange: this.#handleViewAction,
-      onDestroy: onNewEventDestroy,
-      destinations: this.#eventsModel.destinations,
-      allOffers: this.#eventsModel.offers,
-    });
+    // this.#newEventPresenter = new NewEventPresenter({
+    //   eventListContainer: this.#listViewComponent.element,
+    //   onDataChange: this.#handleViewAction,
+    //   onDestroy: onNewEventDestroy,
+    //   destinations: this.#eventsModel.destinations,
+    //   allOffers: this.#eventsModel.offers,
+    // });
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -61,7 +75,15 @@ export default class MainPresenter {
   }
 
   createEvent() {
-    this.#currentSortType = SortType[defaultSortIndex].name;
+    this.#newEventPresenter = new NewEventPresenter({
+      eventListContainer: this.#listViewComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#onNewEventDestroy,
+      destinations: this.#eventsModel.destinations,
+      allOffers: this.#eventsModel.offers,
+    });
+
+    this.#currentSortType = SortType[DEFAULT_SORT_INDEX].name;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter.init();
   }
@@ -102,6 +124,7 @@ export default class MainPresenter {
         onModeChange: this.#handleModeChange,
         destinations: this.#eventsModel.destinations,
         allOffers: this.#eventsModel.offers,
+        //isDisabled, isSaving, isDeleting
       });
       eventPresenter.init(event);
       this.#eventPresenters.set(event.id, eventPresenter);
@@ -109,7 +132,9 @@ export default class MainPresenter {
   };
 
   #clearBoard({resetSortType = false} = {}) {
-    this.#newEventPresenter.destroy();
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
 
@@ -121,22 +146,44 @@ export default class MainPresenter {
     }
 
     if (resetSortType) {
-      this.#currentSortType = SortType[defaultSortIndex].name;
+      this.#currentSortType = SortType[DEFAULT_SORT_INDEX].name;
     }
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this.#eventsModel.updateEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setSaving();
+        //this.#eventsModel.updateEvent(updateType, update);
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
-        this.#eventsModel.addEvent(updateType, update);
+        this.#newEventPresenter.setSaving();
+        //this.#eventsModel.addEvent(updateType, update);
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
-        this.#eventsModel.deleteEvent(updateType, update);
+        this.#eventPresenters.get(update.id).setDeleting();
+        //this.#eventsModel.deleteEvent(updateType, update);
+        try {
+          await this.#eventsModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenters.get(update.id).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {
@@ -156,14 +203,23 @@ export default class MainPresenter {
         break;
       case UpdateType.INIT:
         this.#isLoading = false;
+        this.#isFailedLoad = false;
         remove(this.#loadingComponent);
         this.#renderBoard();
+        break;
+      case UpdateType.FAILED:
+        this.#isLoading = false;
+        this.#isFailedLoad = true;
+        remove(this.#loadingComponent);
+        this.#renderFailedLoad();
         break;
     }
   };
 
   #handleModeChange = () => {
-    this.#newEventPresenter.destroy();
+    if (this.#newEventPresenter) {
+      this.#newEventPresenter.destroy();
+    }
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -187,5 +243,9 @@ export default class MainPresenter {
 
   #renderLoading() {
     render(this.#loadingComponent, this.#boardContainer); // .element RenderPosition.AFTERBEGIN
+  }
+
+  #renderFailedLoad() {
+    render(this.#failedLoadingComponent, this.#boardContainer); // .element RenderPosition.AFTERBEGIN
   }
 }

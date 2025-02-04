@@ -4,9 +4,11 @@ const EVENT_EDIT_DATE_FORMAT = 'DD/MM/YY HH:mm'; //'18/03/19 12:25'
 const EVENT_VIEW_DATE_FORMAT = 'YYYY-MM-DD'; //<time class="event__date" datetime="2019-03-18">MAR 18</time>
 const EVENT_VIEW_DAY_FORMAT = 'MMM DD'; //'MAR 18' (месяц - прописные!)
 const EVENT_VIEW_TIME_FORMAT = 'HH:mm'; //'14:30'
-const EVENT_VIEW_DURATION_TIME_FORMAT = 'HH[H] mm[M]'; //'01H 35M'
+//const EVENT_VIEW_DURATION_TIME_FORMAT = 'HH[H] mm[M]'; //'01H 35M'
 const SHOW_EVENTS_COUNT = 5;
 const DEFAULT_EVENT_TYPE = 'flight';
+const DEFAULT_SORT_INDEX = 0; // сортировка по умолчанию (day)
+const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
 const SortTypeName = {
   DAY: 'day',
@@ -23,7 +25,6 @@ const SortType = [
   {name: 'price', isDisabled: false},
   {name: 'offer', isDisabled: true},
 ];
-const defaultSortIndex = 0; // сортировка по умолчанию
 
 const FilterType = {
   EVERYTHING: 'everything',
@@ -42,6 +43,12 @@ const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   INIT: 'INIT',
+  FAILED: 'FAILED',
+};
+
+const BoardMessage = {
+  LOADING: 'Loading...',
+  FAILED: 'Failed to load latest route information',
 };
 
 export {
@@ -51,13 +58,14 @@ export {
   EVENT_VIEW_DATE_FORMAT,
   EVENT_VIEW_DAY_FORMAT,
   EVENT_VIEW_TIME_FORMAT,
-  EVENT_VIEW_DURATION_TIME_FORMAT,
   SHOW_EVENTS_COUNT,
   SortType,
   SortTypeName,
-  defaultSortIndex,
+  DEFAULT_SORT_INDEX,
   FilterType,
   UserAction,
   UpdateType,
   DEFAULT_EVENT_TYPE,
+  BoardMessage,
+  EVENT_TYPES,
 };

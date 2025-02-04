@@ -1,8 +1,6 @@
 import {remove, render, RenderPosition} from '../framework/render.js';
 import EditFormView from '../view/edit-form-view.js';
-import {nanoid} from 'nanoid';
 import {UserAction, UpdateType} from '../const.js';
-//import {getNewId} from '../utils/event.js';
 
 export default class NewEventPresenter {
   #eventListContainer = null;
@@ -26,6 +24,7 @@ export default class NewEventPresenter {
     }
     this.#eventEditComponent = new EditFormView({
       onFormSubmit: this.#handleFormSubmit,
+      onFormCancel: this.#handleDeleteClick,
       onDeleteClick: this.#handleDeleteClick,
       destinations: this.#destinations,
       allOffers: this.#allOffers,
@@ -44,15 +43,31 @@ export default class NewEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving() {
+    this.#eventEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#eventEditComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (event) => {
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      // Пока у нас нет сервера, который бы после сохранения
-      // выдывал честный id задачи, нам нужно позаботиться об этом самим
-      {id: nanoid(), ...event},
+      event,
     );
-    this.destroy();
+    //this.destroy();
   };
 
   #handleDeleteClick = () => {

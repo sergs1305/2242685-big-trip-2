@@ -33,7 +33,18 @@ export default class SortView extends AbstractView {
 
   #sortTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    this.#handleSortTypeChange(evt.target.dataset.sortType);
+
+    const selectedSortType = evt.target.dataset.sortType;
+
+    if (!selectedSortType) {
+      return;
+    }
+
+    if (SortType[SortType.findIndex((item) => item.name === selectedSortType)].isDisabled) {
+      return;
+    }
+
+    this.#handleSortTypeChange(selectedSortType);
   };
 
 }
