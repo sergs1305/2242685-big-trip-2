@@ -67,7 +67,6 @@ export default class NewEventPresenter {
       UpdateType.MINOR,
       event,
     );
-    //this.destroy();
   };
 
   #handleDeleteClick = () => {

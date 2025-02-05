@@ -18,20 +18,13 @@ export default class EventPresenter {
   #mode = Mode.DEFAULT;
   #destinations = [];
   #allOffers = [];
-  #isDisabled = false;
-  #isSaving = false;
-  #isDeleting = false;
 
-  constructor ({listViewComponent, onDataChange, onModeChange, destinations, allOffers}) { //, isDisabled, isSaving, isDeleting
-    //this.#event = event;
+  constructor ({listViewComponent, onDataChange, onModeChange, destinations, allOffers}) {
     this.#listViewComponent = listViewComponent;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
     this.#destinations = destinations;
     this.#allOffers = allOffers;
-    // this.#isDisabled = isDisabled;
-    // this.#isSaving = isSaving;
-    // this.#isDeleting = isDeleting;
   }
 
   init(event) {
@@ -57,9 +50,6 @@ export default class EventPresenter {
       onDeleteClick: this.#handleDeleteClick,
       destinations: this.#destinations,
       allOffers: this.#allOffers,
-      // isDisabled: this.#isDisabled,
-      // isSaving: this.#isSaving,
-      // isDeleting: this.#isDeleting,
     });
 
     if (prevEventViewComponent === null || prevEventEditComponent === null) {
@@ -68,14 +58,11 @@ export default class EventPresenter {
     }
 
     // Проверка на наличие в DOM необходима, чтобы не пытаться заменить то, что не было отрисовано
-    //if (this.#listViewComponent.element.contains(prevEventViewComponent.element)) {
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventViewComponent, prevEventViewComponent);
     }
 
-    //if (this.#listViewComponent.element.contains(prevEventEditComponent.element)) {
     if (this.#mode === Mode.EDITING) {
-      //replace(this.#eventEditComponent, prevEventEditComponent);
       replace(this.#eventViewComponent, prevEventEditComponent);
       this.#mode = Mode.DEFAULT;
     }
@@ -142,7 +129,6 @@ export default class EventPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
     );
-    //this.#replaceFormToCard();
   };
 
   #handleDeleteClick = (event) => {

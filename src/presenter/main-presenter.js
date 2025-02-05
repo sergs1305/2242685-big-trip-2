@@ -29,27 +29,19 @@ export default class MainPresenter {
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
   #isLoading = true;
-  #isFailedLoad = false;
   #onNewEventDestroy = null;
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
+  #isFailedLoad = false;
+
   constructor ({boardContainer, eventsModel, filterModel, onNewEventDestroy}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
     this.#filterModel = filterModel;
     this.#onNewEventDestroy = onNewEventDestroy;
-
-    // this.#newEventPresenter = new NewEventPresenter({
-    //   eventListContainer: this.#listViewComponent.element,
-    //   onDataChange: this.#handleViewAction,
-    //   onDestroy: onNewEventDestroy,
-    //   destinations: this.#eventsModel.destinations,
-    //   allOffers: this.#eventsModel.offers,
-    // });
-
     this.#eventsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
@@ -104,7 +96,6 @@ export default class MainPresenter {
 
     this.#renderSort();
 
-    //this.#listViewComponent = new ListView();
     render(this.#listViewComponent, this.#boardContainer); // отрисовываем тэг <ul> - контейнер списка точек маршрута
 
     this.#renderEvents(events);
@@ -124,7 +115,6 @@ export default class MainPresenter {
         onModeChange: this.#handleModeChange,
         destinations: this.#eventsModel.destinations,
         allOffers: this.#eventsModel.offers,
-        //isDisabled, isSaving, isDeleting
       });
       eventPresenter.init(event);
       this.#eventPresenters.set(event.id, eventPresenter);
@@ -156,7 +146,6 @@ export default class MainPresenter {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenters.get(update.id).setSaving();
-        //this.#eventsModel.updateEvent(updateType, update);
         try {
           await this.#eventsModel.updateEvent(updateType, update);
         } catch(err) {
@@ -165,7 +154,6 @@ export default class MainPresenter {
         break;
       case UserAction.ADD_EVENT:
         this.#newEventPresenter.setSaving();
-        //this.#eventsModel.addEvent(updateType, update);
         try {
           await this.#eventsModel.addEvent(updateType, update);
         } catch(err) {
@@ -174,7 +162,6 @@ export default class MainPresenter {
         break;
       case UserAction.DELETE_EVENT:
         this.#eventPresenters.get(update.id).setDeleting();
-        //this.#eventsModel.deleteEvent(updateType, update);
         try {
           await this.#eventsModel.deleteEvent(updateType, update);
         } catch(err) {
@@ -189,7 +176,6 @@ export default class MainPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this.#eventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:

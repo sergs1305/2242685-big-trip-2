@@ -5,8 +5,8 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_EVENT = {
-  dateFrom: null, // new Date()
-  dateTo: null, //new Date()
+  dateFrom: null,
+  dateTo: null,
   type : DEFAULT_EVENT_TYPE,
   destination: '',
   basePrice: 0,
@@ -73,7 +73,7 @@ function createEventSectionDestination (currentDestination, destinations) {
 }
 
 function createEditFormTemplate (event, destinations, allOffers) {
-  const {basePrice, dateFrom, dateTo, type, destination, id} = event; //id, isFavorite , offers
+  const {basePrice, dateFrom, dateTo, type, destination, id} = event;
   const currentDestinationId = destinations.findIndex((item) => item.id === destination);
 
   let currentDestinationName = '\'\'';
@@ -170,7 +170,6 @@ function createEditFormTemplate (event, destinations, allOffers) {
 
 function getAvailableOffers (event, allOffers) {
   let availableOffers = [];
-  //if (event.offers) {
   availableOffers = allOffers[allOffers.findIndex((item) => item.type === event.type)].offers; //массив доступных offers для кокретного type
 
   if (event.offers) {
@@ -206,8 +205,6 @@ export default class EditFormView extends AbstractStatefulView {
     return createEditFormTemplate(this._state, this.#destinations, this.#allOffers);
   }
 
-  //removeElement()?
-
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
@@ -225,7 +222,6 @@ export default class EditFormView extends AbstractStatefulView {
     this.updateElement({
       type: this._state.type,
     });
-    //this.#handleFormSubmit(EditFormView.parseStateToEvent(this._state));
   };
 
   #destinationHandler = (evt) => {
@@ -317,7 +313,7 @@ export default class EditFormView extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
-    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler); //destination-list-1
+    this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler);
     this.element.querySelector('#event-price-1').addEventListener('change', this.#priceChangeHandler);
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#handleFormCancel); // кнопка "стрелка вниз"
@@ -358,4 +354,3 @@ export default class EditFormView extends AbstractStatefulView {
     return event;
   }
 }
-
