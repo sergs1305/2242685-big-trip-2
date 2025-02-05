@@ -4,7 +4,6 @@ import {capitalizeFirstLetter} from '../utils/common.js';
 
 function createSortTemplate(currentSortType) {
   let sortTemplate = '<form class="trip-events__trip-sort  trip-sort" action="#" method="get">';
-  //for (let i = 0; i < SortType.length; i++) {
   SortType.forEach((sortType) => {
     sortTemplate +=
       `<div class="trip-sort__item  trip-sort__item--${sortType.name}">
@@ -12,14 +11,6 @@ function createSortTemplate(currentSortType) {
         <label class="trip-sort__btn" for="sort-${sortType.name}" data-sort-type="${sortType.name}">${capitalizeFirstLetter(sortType.name)}</label>
       </div>`;
   });
-  // sortTemplate += `
-  //   <div class="trip-sort__item  trip-sort__item--${SortType[i].name}">
-  //     <input id="sort-${SortType[i].name}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-${SortType[i].name}" ${!SortType[i].isDisabled && currentSortType === SortType[i].name ? 'checked' : ''} ${SortType[i].isDisabled ? 'disabled' : ''}>
-  //     <label class="trip-sort__btn" for="sort-${SortType[i].name}" data-sort-type="${SortType[i].name}">${capitalizeFirstLetter(SortType[i].name)}</label>
-  //   </div>
-  // `;
-  // });
-  //}
   sortTemplate += '</form>';
   return sortTemplate;
 }
