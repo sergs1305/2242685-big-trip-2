@@ -5,10 +5,11 @@ import ListView from '../view/list-view.js';
 import ListEmptyView from '../view/list-empty-view.js';
 import EventPresenter from './event-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import {SortType, SortTypeName, DEFAULT_SORT_INDEX, UpdateType, UserAction, FilterType, BoardMessage} from '../const.js';
+import {SortTypes, SortTypeName, DEFAULT_SORT_INDEX, UpdateType, UserAction, FilterType, BoardMessage} from '../const.js';
 import {sortByDay, sortByTime, sortByPrice} from '../utils/event.js';
 import {filter} from '../utils/filter.js';
 import BoardMessageView from '../view/board-message-view.js';
+import {newEventButtonComponent} from '../main.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -21,7 +22,7 @@ export default class MainPresenter {
   #eventPresenters = new Map();
   #newEventPresenter = null;
   #sortComponent = null;
-  #currentSortType = SortType[DEFAULT_SORT_INDEX].name;
+  #currentSortType = SortTypes[DEFAULT_SORT_INDEX].name;
   #listViewComponent = new ListView();
   #loadingComponent = new BoardMessageView(BoardMessage.LOADING);
   #failedLoadingComponent = new BoardMessageView(BoardMessage.FAILED);
@@ -75,7 +76,7 @@ export default class MainPresenter {
       allOffers: this.#eventsModel.offers,
     });
 
-    this.#currentSortType = SortType[DEFAULT_SORT_INDEX].name;
+    this.#currentSortType = SortTypes[DEFAULT_SORT_INDEX].name;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newEventPresenter.init();
   }
@@ -136,7 +137,7 @@ export default class MainPresenter {
     }
 
     if (resetSortType) {
-      this.#currentSortType = SortType[DEFAULT_SORT_INDEX].name;
+      this.#currentSortType = SortTypes[DEFAULT_SORT_INDEX].name;
     }
   }
 
@@ -196,6 +197,7 @@ export default class MainPresenter {
       case UpdateType.FAILED:
         this.#isLoading = false;
         this.#isFailedLoad = true;
+        newEventButtonComponent.element.disabled = true;
         remove(this.#loadingComponent);
         this.#renderFailedLoad();
         break;
@@ -224,14 +226,14 @@ export default class MainPresenter {
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
-    render(this.#sortComponent, this.#boardContainer); //RenderPosition.AFTERBEGIN
+    render(this.#sortComponent, this.#boardContainer);
   }
 
   #renderLoading() {
-    render(this.#loadingComponent, this.#boardContainer); // .element RenderPosition.AFTERBEGIN
+    render(this.#loadingComponent, this.#boardContainer);
   }
 
   #renderFailedLoad() {
-    render(this.#failedLoadingComponent, this.#boardContainer); // .element RenderPosition.AFTERBEGIN
+    render(this.#failedLoadingComponent, this.#boardContainer);
   }
 }

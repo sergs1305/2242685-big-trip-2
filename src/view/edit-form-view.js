@@ -16,10 +16,13 @@ const BLANK_EVENT = {
 
 function createEventSectionOffersTemplate (event, allOffers) {
   const availableOffers = getAvailableOffers(event, allOffers); //массив доступных offers для кокретного type
+
   if (availableOffers.length === 0) {
     return '';
   }
+
   let availableOffersHtml = '';
+
   availableOffers.forEach((offer) => {
     availableOffersHtml += `
       <div class="event__offer-selector">
@@ -52,7 +55,9 @@ function createEventSectionDestination (currentDestination, destinations) {
   }
 
   const pictures = destinations[destinations.findIndex((item) => item.id === currentDestination.id)].pictures; //массив фотографий для текущего destination
+
   let photosHtml = '';
+
   pictures.forEach((picture) => {
     photosHtml += `
       <img class="event__photo" src="${picture.src}" alt="${picture.description}">
@@ -75,6 +80,10 @@ function createEventSectionDestination (currentDestination, destinations) {
 function createEditFormTemplate (event, destinations, allOffers) {
   const {basePrice, dateFrom, dateTo, type, destination, id} = event;
   const currentDestinationId = destinations.findIndex((item) => item.id === destination);
+
+  const deleteBtnText = event.isDeleting ? 'Deleting...' : 'Delete';
+  const dateFromValue = id ? formatDate(dateFrom, EVENT_EDIT_DATE_FORMAT) : '';
+  const dateToValue = id ? formatDate(dateTo, EVENT_EDIT_DATE_FORMAT) : '';
 
   let currentDestinationName = '\'\'';
   let eventTypesTemplate = '';
@@ -107,9 +116,6 @@ function createEditFormTemplate (event, destinations, allOffers) {
   destinationsTemplate += `
       </datalist>
     `;
-  const deleteBtnText = event.isDeleting ? 'Deleting...' : 'Delete';
-  const dateFromValue = id ? formatDate(dateFrom, EVENT_EDIT_DATE_FORMAT) : '';
-  const dateToValue = id ? formatDate(dateTo, EVENT_EDIT_DATE_FORMAT) : '';
 
   return (
     `<li class="trip-events__item">
@@ -170,6 +176,7 @@ function createEditFormTemplate (event, destinations, allOffers) {
 
 function getAvailableOffers (event, allOffers) {
   let availableOffers = [];
+
   availableOffers = allOffers[allOffers.findIndex((item) => item.type === event.type)].offers; //массив доступных offers для кокретного type
 
   if (event.offers) {
@@ -276,7 +283,7 @@ export default class EditFormView extends AbstractStatefulView {
         maxDate: this._state.dateTo,
         enableTime: true,
         'time_24hr': true,
-        onClose: this.#dateFromCloseHandler, // На событие flatpickr передаём наш колбэк
+        onClose: this.#dateFromCloseHandler, // На событие flatpickr передаём колбэк
       },
     );
   }
@@ -290,7 +297,7 @@ export default class EditFormView extends AbstractStatefulView {
         minDate: this._state.dateFrom,
         enableTime: true,
         'time_24hr': true,
-        onClose: this.#dateToCloseHandler, // На событие flatpickr передаём наш колбэк
+        onClose: this.#dateToCloseHandler, // На событие flatpickr передаём колбэк
       },
     );
   }

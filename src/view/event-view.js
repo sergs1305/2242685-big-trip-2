@@ -10,7 +10,7 @@ function getOfferById (type, offerId, allOffers) {
 }
 
 function createEventTemplate(event, destinations, allOffers) {
-  const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
+  const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event;
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
   const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);

@@ -17,12 +17,12 @@ const SortTypeName = {
   OFFER: 'offer',
 };
 
-const SortType = [
-  {name: 'day', isDisabled: false},
-  {name: 'event', isDisabled: true},
-  {name: 'time', isDisabled: false},
-  {name: 'price', isDisabled: false},
-  {name: 'offer', isDisabled: true},
+const SortTypes = [
+  {name: SortTypeName.DAY, isDisabled: false},
+  {name: SortTypeName.EVENT, isDisabled: true},
+  {name: SortTypeName.TIME, isDisabled: false},
+  {name: SortTypeName.PRICE, isDisabled: false},
+  {name: SortTypeName.OFFER, isDisabled: true},
 ];
 
 const FilterType = {
@@ -58,7 +58,7 @@ export {
   EVENT_VIEW_DAY_FORMAT,
   EVENT_VIEW_TIME_FORMAT,
   SHOW_EVENTS_COUNT,
-  SortType,
+  SortTypes,
   SortTypeName,
   DEFAULT_SORT_INDEX,
   FilterType,
