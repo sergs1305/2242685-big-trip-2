@@ -19,6 +19,10 @@ const eventsModel = new EventsModel({
 });
 const filterModel = new FilterModel();
 
+const newEventButtonComponent = new NewEventButtonView({
+  onClick: handleNewEventButtonClick
+});
+
 const mainPresenter = new MainPresenter({
   boardContainer: tripEvents,
   eventsModel,
@@ -32,10 +36,6 @@ const filterPresenter = new FilterPresenter({
   eventsModel
 });
 
-const newEventButtonComponent = new NewEventButtonView({
-  onClick: handleNewEventButtonClick
-});
-
 function handleNewEventFormClose() {
   newEventButtonComponent.element.disabled = false;
 }
@@ -47,10 +47,10 @@ function handleNewEventButtonClick() {
 
 render(new TripInfoView(), tripMainElement, 'AFTERBEGIN');
 
-//render(newEventButtonComponent, tripMainElement);
-
 filterPresenter.init();
 mainPresenter.init();
 eventsModel.init().finally(() => {
   render(newEventButtonComponent, tripMainElement);
 });
+
+export {newEventButtonComponent};

@@ -1,8 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {EVENT_VIEW_DATE_FORMAT, EVENT_VIEW_DAY_FORMAT, EVENT_VIEW_TIME_FORMAT} from '../const.js';
 import {formatDate, capitalizeFirstLetter} from '../utils/common.js';
-// import {destinations} from '../mock/destinations.js';
-// import {allOffers} from '../mock/offers.js';
 import dayjs from 'dayjs';
 
 function getOfferById (type, offerId, allOffers) {
@@ -12,19 +10,21 @@ function getOfferById (type, offerId, allOffers) {
 }
 
 function createEventTemplate(event, destinations, allOffers) {
-  //console.log(event);
-  const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event; //id,
+  const {basePrice, dateFrom, dateTo, destination, type, offers: selectedOffers, isFavorite} = event;
   const eventDate = formatDate(dateFrom, EVENT_VIEW_DATE_FORMAT);
   const dayFrom = formatDate(dateFrom, EVENT_VIEW_DAY_FORMAT).toUpperCase();
   const timeFrom = formatDate(dateFrom, EVENT_VIEW_TIME_FORMAT);
   const timeTo = formatDate(dateTo, EVENT_VIEW_TIME_FORMAT);
-  const durationHours = dayjs(dateTo).diff(dateFrom, 'h');
+  const durationDays = Math.floor(dayjs(dateTo).diff(dateFrom, 'h') / 24);
+  const durationDaysString = durationDays < 10 ? '0'.concat(String(durationDays)) : String(durationDays);
+  const durationHours = dayjs(dateTo).diff(dateFrom, 'h') % 24;
+  const durationHoursString = durationHours < 10 ? '0'.concat(String(durationHours)) : String(durationHours);
   const durationMinuts = Math.round(dayjs(dateTo).diff(dateFrom, 'm', true) % 60);
-  const eventDuration = `${durationHours}H ${durationMinuts}M`;
+  const durationMinutsString = durationMinuts < 10 ? '0'.concat(String(durationMinuts)) : String(durationMinuts);
+  const eventDuration = `${durationDays ? durationDaysString.concat('D ') : ''}${durationHours || durationDays ? durationHoursString.concat('H ') : ''}${durationMinutsString}M`;
   const destinationName = destinations[destinations.findIndex((item) => item.id === destination)].name;
   const isEventFavoriteBtnActive = isFavorite ? 'event__favorite-btn--active' : '';
 
-  // eslint-disable-next-line no-unused-vars
   let selectedOffersTemplate = '';
   //итерация по массиву выбранных предложений (selectedOffers)
   selectedOffers.forEach((offerId) => {
@@ -103,10 +103,8 @@ export default class EventView extends AbstractView {
   }
 
   #favoriteClickHandler = (evt) => {
-    //const favoriteBtn = evt.target;
     evt.preventDefault();
     this.#onFavoriteClick();
-    //favoriteBtn.replaceWith(createFavoriteBtnTemplate(this.#event));
   };
 
   #editBtnClickHandler = (evt) => {

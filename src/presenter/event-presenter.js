@@ -20,7 +20,6 @@ export default class EventPresenter {
   #allOffers = [];
 
   constructor ({listViewComponent, onDataChange, onModeChange, destinations, allOffers}) {
-    //this.#event = event;
     this.#listViewComponent = listViewComponent;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
@@ -59,14 +58,13 @@ export default class EventPresenter {
     }
 
     // Проверка на наличие в DOM необходима, чтобы не пытаться заменить то, что не было отрисовано
-    //if (this.#listViewComponent.element.contains(prevEventViewComponent.element)) {
     if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventViewComponent, prevEventViewComponent);
     }
 
-    //if (this.#listViewComponent.element.contains(prevEventEditComponent.element)) {
     if (this.#mode === Mode.EDITING) {
-      replace(this.#eventEditComponent, prevEventEditComponent);
+      replace(this.#eventViewComponent, prevEventEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventViewComponent);
@@ -85,17 +83,52 @@ export default class EventPresenter {
     }
   }
 
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventViewComponent.shake();
+      return;
+    }
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#eventEditComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (update) => {
     // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
     // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
-    const isMinorUpdate = this.#event.dateFrom !== update.dateFrom;
+    const isMinorUpdate =
+      this.#event.dateFrom !== update.dateFrom ||
+      this.#event.dateTo !== update.dateTo ||
+      this.#event.basePrice !== update.basePrice;
 
     this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
     );
-    this.#replaceFormToCard();
   };
 
   #handleDeleteClick = (event) => {
