@@ -318,6 +318,14 @@ export default class EditFormView extends AbstractStatefulView {
     );
   }
 
+  removeElement = () => {
+    super.removeElement();
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
+
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationHandler);
