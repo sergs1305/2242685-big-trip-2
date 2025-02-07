@@ -4,8 +4,8 @@ function formatDate(date, dateFormat) {
   return dayjs(date).format(dateFormat);
 }
 
-function capitalizeFirstLetter(str) {
-  return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+function capitalizeFirstLetter(text) {
+  return String(text).charAt(0).toUpperCase() + String(text).slice(1);
 }
 
 export {formatDate, capitalizeFirstLetter};

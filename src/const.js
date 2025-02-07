@@ -1,10 +1,8 @@
 const CURRENT_DATE = new Date();
-const DATA_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'; //"2019-07-10T22:55:56.845Z"
 const EVENT_EDIT_DATE_FORMAT = 'DD/MM/YY HH:mm'; //'18/03/19 12:25'
 const EVENT_VIEW_DATE_FORMAT = 'YYYY-MM-DD'; //<time class="event__date" datetime="2019-03-18">MAR 18</time>
 const EVENT_VIEW_DAY_FORMAT = 'MMM DD'; //'MAR 18' (месяц - прописные!)
 const EVENT_VIEW_TIME_FORMAT = 'HH:mm'; //'14:30'
-const SHOW_EVENTS_COUNT = 5;
 const DEFAULT_EVENT_TYPE = 'flight';
 const DEFAULT_SORT_INDEX = 0; // сортировка по умолчанию (day)
 const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
@@ -52,12 +50,10 @@ const BoardMessage = {
 
 export {
   CURRENT_DATE,
-  DATA_DATE_FORMAT,
   EVENT_EDIT_DATE_FORMAT,
   EVENT_VIEW_DATE_FORMAT,
   EVENT_VIEW_DAY_FORMAT,
   EVENT_VIEW_TIME_FORMAT,
-  SHOW_EVENTS_COUNT,
   SortTypes,
   SortTypeName,
   DEFAULT_SORT_INDEX,
