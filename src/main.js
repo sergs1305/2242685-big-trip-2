@@ -1,10 +1,11 @@
 import {render} from './framework/render.js';
-import TripInfoView from './view/trip-info-view.js';
+//import InfoView from './view/info-view.js';
 import NewEventButtonView from './view/new-event-button-view.js';
 import MainPresenter from './presenter/main-presenter.js';
 import EventsModel from './model/events-model.js';
 import FilterModel from './model/filter-model.js';
 import FilterPresenter from './presenter/filter-presenter.js';
+import InfoPresenter from './presenter/info-presenter.js';
 import EventsApiService from './events-api-service.js';
 
 const AUTHORIZATION = 'Basic sUgL30f09grG1COv';
@@ -36,6 +37,11 @@ const filterPresenter = new FilterPresenter({
   eventsModel
 });
 
+const infoPresenter = new InfoPresenter({
+  infoContainer: tripMainElement,
+  eventsModel,
+});
+
 function handleNewEventFormClose() {
   newEventButtonComponent.element.disabled = false;
 }
@@ -45,8 +51,9 @@ function handleNewEventButtonClick() {
   newEventButtonComponent.element.disabled = true;
 }
 
-render(new TripInfoView(), tripMainElement, 'AFTERBEGIN');
+//render(new InfoView(), tripMainElement, 'AFTERBEGIN'); !!!
 
+infoPresenter.init();
 filterPresenter.init();
 mainPresenter.init();
 eventsModel.init().finally(() => {

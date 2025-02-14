@@ -110,7 +110,7 @@ function createEditFormTemplate (event, destinations, allOffers) {
 
   destinations.forEach((destinationItem) => {
     destinationsTemplate += `
-        <option value=${destinationItem.name}></option>
+        <option value="${destinationItem.name}"></option>
       `;
   });
   destinationsTemplate += `
@@ -317,6 +317,14 @@ export default class EditFormView extends AbstractStatefulView {
       EditFormView.parseEventToState(event, this.#allOffers),
     );
   }
+
+  removeElement = () => {
+    super.removeElement();
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  };
 
   _restoreHandlers = () => {
     this.element.querySelector('.event__type-group').addEventListener('click', this.#eventTypeHandler);
